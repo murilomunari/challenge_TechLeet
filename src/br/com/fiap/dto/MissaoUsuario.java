@@ -54,4 +54,24 @@ public class MissaoUsuario {
     public LocalDate getDataInicio() {
         return this.dataInicio;
     }
+
+    public void setDataInicio(LocalDate dataInicio) {
+        this.dataInicio = dataInicio;
+    }
+
+    public void iniciar() {
+        if (this.status != null && !this.status.equalsIgnoreCase("nao iniciada")) {
+            throw new IllegalStateException("A missao ja foi iniciada ou finalizada.");
+        }
+        this.status = "em andamento";
+        this.dataInicio = LocalDate.now();
+    }
+
+    public void concluir() {
+        if (!"em andamento".equalsIgnoreCase(this.status)) {
+            throw new IllegalStateException("Somente uma missao em andamento pode ser concluida.");
+        }
+        this.status = "concluida";
+    }
+
 }

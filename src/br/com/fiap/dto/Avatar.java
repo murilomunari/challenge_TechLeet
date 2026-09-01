@@ -61,17 +61,22 @@ public class Avatar implements Personalizavel {
     @Override
     public void equiparItem(Item item) {
         if (item == null) {
-            return;
+            throw new IllegalArgumentException("O item deve ser informado.");
         }
 
         String tipo = item.getTipo();
+        if (tipo == null) {
+            throw new IllegalArgumentException("O item deve possuir um tipo.");
+        }
 
-        if (tipo.equals("roupa")) {
+        if (tipo.equalsIgnoreCase("roupa")) {
             this.roupa = item;
-        } else if (tipo.equals("chapeu")) {
+        } else if (tipo.equalsIgnoreCase("chapeu")) {
             this.chapeu = item;
-        } else if (tipo.equals("oculos")) {
+        } else if (tipo.equalsIgnoreCase("oculos")) {
             this.oculos = item;
+        } else {
+            throw new IllegalArgumentException("Tipo de item invalido.");
         }
     }
 
@@ -83,6 +88,8 @@ public class Avatar implements Personalizavel {
             this.chapeu = null;
         } else if (posicao == 3) {
             this.oculos = null;
+        } else {
+            throw new IllegalArgumentException("A posicao deve ser 1, 2 ou 3.");
         }
     }
 }

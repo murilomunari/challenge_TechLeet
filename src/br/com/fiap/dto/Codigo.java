@@ -72,6 +72,29 @@ public class Codigo {
     }
 
     public boolean validarResgate() {
-        return this.status.equals("ativo");
+        return validarResgate(LocalDate.now());
+    }
+
+    public boolean validarResgate(LocalDate dataAtual) {
+        if (dataAtual == null) {
+            throw new IllegalArgumentException("A data atual deve ser informada.");
+        }
+        return "ativo".equalsIgnoreCase(this.status)
+                && this.dataResgate == null
+                && this.dataValidade != null
+                && !dataAtual.isAfter(this.dataValidade);
+    }
+
+    public boolean resgatar(LocalDate dataResgate) {
+        if (!validarResgate(dataResgate)) {
+            return false;
+        }
+        this.dataResgate = dataResgate;
+        this.status = "resgatado";
+        return true;
+    }
+
+    public boolean resgatar() {
+        return resgatar(LocalDate.now());
     }
 }

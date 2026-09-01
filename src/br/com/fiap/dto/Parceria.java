@@ -55,4 +55,8 @@ public class Parceria {
     public LocalDate getDataInicio() {
         return this.dataInicio;
     }
+
+    public void setDataInicio(LocalDate dataInicio) {
+        this.dataInicio = dataInicio;
+    }
 }

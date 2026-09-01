@@ -22,6 +22,23 @@ public class Inventario {
         this.quantidade = quantidade;
     }
 
+    public void adicionarQuantidade(int quantidade) {
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade adicionada deve ser positiva.");
+        }
+        this.quantidade += quantidade;
+    }
+
+    public boolean removerQuantidade(int quantidade) {
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade removida deve ser positiva.");
+        }
+        if (this.quantidade < quantidade) {
+            return false;
+        }
+        this.quantidade -= quantidade;
+        return true;
+    }
 
     public int getId() {
         return this.id;

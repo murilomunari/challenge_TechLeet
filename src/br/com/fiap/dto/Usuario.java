@@ -20,6 +20,23 @@ public class Usuario {
         this.avatar = avatar;
     }
 
+    public void adicionarPontos(int quantidade) {
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade de pontos deve ser positiva.");
+        }
+        this.pontos += quantidade;
+    }
+
+    public boolean gastarPontos(int quantidade) {
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade de pontos deve ser positiva.");
+        }
+        if (this.pontos < quantidade) {
+            return false;
+        }
+        this.pontos -= quantidade;
+        return true;
+    }
 
     public int getId() {
         return this.id;
