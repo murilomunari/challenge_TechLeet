@@ -54,4 +54,35 @@ public class UsuarioDAO {
             return "Erro ao inserir usuario";
         }
     }
+
+    public String ALterarUsuario(Usuario usuario) {
+        String sql = "update Usuario set email=?, senha=?, pontos=? where id_usuario=?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, usuario.getEmail());
+            ps.setString(2, usuario.getSenha());
+            ps.setInt(3, usuario.getPontos());
+            ps.setInt(4, usuario.getIdAvatar());
+            ps.setInt(5, usuario.getId());
+            if (ps.executeUpdate() > 0) {
+                return "Usuario alterado com sucesso";
+            }
+            return "Usuario nao encontrado";
+        } catch (SQLException e) {
+            return "Erro ao atualizar usuario";
+        }
+    }
+
+    public String Deletar(Usuario usuario) {
+        String sql = "delete from Usuarios where id_usuario=?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, usuario.getId());
+            if (ps.executeUpdate() > 0) {
+                return "Usuario deletado com sucesso!";
+            } else {
+                return "Erro ao deletar usuario!";
+            }
+        } catch (SQLException e) {
+            return "Erro ao deletar usuario!";
+        }
+    }
 }
