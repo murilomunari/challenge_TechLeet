@@ -6,18 +6,18 @@ public class Usuario {
     private String email;
     private String senha;
     private int pontos;
-    private String avatar;
+    private int idAvatar;
 
     public Usuario() {
     }
 
-    public Usuario(int id, String nome, String email, String senha, int pontos, String avatar) {
+    public Usuario(int id, String nome, String email, String senha, int pontos, int idAvatar) {
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.pontos = pontos;
-        this.avatar = avatar;
+        this.idAvatar = idAvatar;
     }
 
     public void adicionarPontos(int quantidade) {
@@ -78,11 +78,11 @@ public class Usuario {
         this.pontos = pontos;
     }
 
-    public String getAvatar() {
-        return this.avatar;
+    public int getIdAvatar() {
+        return this.idAvatar;
     }
 
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
+    public void setIdAvatar(int idAvatar) {
+        this.idAvatar = idAvatar;
     }
 }
