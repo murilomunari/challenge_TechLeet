@@ -21,7 +21,7 @@ public class UsuarioDAO {
     }
 
     public ArrayList<Usuario> listaTodos() {
-        String sql = "select * from Usuario from id_usuario";
+        String sql = "select * from Usuarios order by id_usuario";
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
         try(PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -55,8 +55,8 @@ public class UsuarioDAO {
         }
     }
 
-    public String ALterarUsuario(Usuario usuario) {
-        String sql = "update Usuario set email=?, senha=?, pontos=? where id_usuario=?";
+    public String AlterarUsuario(Usuario usuario) {
+        String sql = "update Usuarios set email=?, senha=?, pontos=?, id_avatar=? where id_usuario=?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, usuario.getEmail());
             ps.setString(2, usuario.getSenha());
