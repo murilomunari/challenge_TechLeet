@@ -20,7 +20,7 @@ public class ItemDAO {
         return con;
     }
 
-    public ArrayList<Item> listarItem() {
+    public ArrayList<Item> ListarItem() {
         String sql = "SELECT * FROM itens order by id_item";
         ArrayList<Item> items = new ArrayList<>();
         try(PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
