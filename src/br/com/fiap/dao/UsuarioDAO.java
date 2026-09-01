@@ -72,7 +72,7 @@ public class UsuarioDAO {
         }
     }
 
-    public String Deletar(Usuario usuario) {
+    public String DeletarUsuario(Usuario usuario) {
         String sql = "delete from Usuarios where id_usuario=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, usuario.getId());
