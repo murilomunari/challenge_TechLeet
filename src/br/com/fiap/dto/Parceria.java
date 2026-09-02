@@ -1,5 +1,6 @@
 package br.com.fiap.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Parceria {
@@ -7,17 +8,22 @@ public class Parceria {
     private String nome;
     private String tipo;
     private String status;
+    private BigDecimal custoMensal;
     private LocalDate dataInicio;
+    private LocalDate dataFim;
 
     public Parceria() {
     }
 
-    public Parceria(int id, String nome, String tipo, String status, LocalDate dataInicio) {
+    public Parceria(int id, String nome, String tipo, String status, BigDecimal custoMensal,
+                    LocalDate dataInicio, LocalDate dataFim) {
         this.id = id;
         this.nome = nome;
         this.tipo = tipo;
         this.status = status;
+        this.custoMensal = custoMensal;
         this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
     }
 
     public int getId() {
@@ -52,11 +58,27 @@ public class Parceria {
         this.status = status;
     }
 
+    public BigDecimal getCustoMensal() {
+        return this.custoMensal;
+    }
+
+    public void setCustoMensal(BigDecimal custoMensal) {
+        this.custoMensal = custoMensal;
+    }
+
     public LocalDate getDataInicio() {
         return this.dataInicio;
     }
 
     public void setDataInicio(LocalDate dataInicio) {
         this.dataInicio = dataInicio;
+    }
+
+    public LocalDate getDataFim() {
+        return this.dataFim;
+    }
+
+    public void setDataFim(LocalDate dataFim) {
+        this.dataFim = dataFim;
     }
 }

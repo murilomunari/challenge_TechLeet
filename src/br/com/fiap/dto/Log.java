@@ -7,16 +7,19 @@ public class Log {
     private String assunto;
     private String descricao;
     private LocalDate dataRegistro;
+    private int idUsuario;
     private String status;
 
     public Log() {
     }
 
-    public Log(int id, String assunto, String descricao, LocalDate dataRegistro, String status) {
+    public Log(int id, String assunto, String descricao, LocalDate dataRegistro,
+               int idUsuario, String status) {
         this.id = id;
         this.assunto = assunto;
         this.descricao = descricao;
         this.dataRegistro = dataRegistro;
+        this.idUsuario = idUsuario;
         this.status = status;
     }
 
@@ -50,6 +53,14 @@ public class Log {
 
     public void setDataRegistro(LocalDate dataRegistro) {
         this.dataRegistro = dataRegistro;
+    }
+
+    public int getIdUsuario() {
+        return this.idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getStatus() {

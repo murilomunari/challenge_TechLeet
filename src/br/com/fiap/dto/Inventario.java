@@ -8,36 +8,16 @@ public class Inventario {
     private int idItem;
     private String origem;
     private LocalDate dataAquisicao;
-    private int quantidade;
 
     public Inventario() {
     }
 
-    public Inventario(int id, int idUsuario, int idItem, String origem, LocalDate dataAquisicao, int quantidade) {
+    public Inventario(int id, int idUsuario, int idItem, String origem, LocalDate dataAquisicao) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.idItem = idItem;
         this.origem = origem;
         this.dataAquisicao = dataAquisicao;
-        this.quantidade = quantidade;
-    }
-
-    public void adicionarQuantidade(int quantidade) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade adicionada deve ser positiva.");
-        }
-        this.quantidade += quantidade;
-    }
-
-    public boolean removerQuantidade(int quantidade) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade removida deve ser positiva.");
-        }
-        if (this.quantidade < quantidade) {
-            return false;
-        }
-        this.quantidade -= quantidade;
-        return true;
     }
 
     public int getId() {
@@ -80,11 +60,4 @@ public class Inventario {
         this.dataAquisicao = dataAquisicao;
     }
 
-    public int getQuantidade() {
-        return this.quantidade;
-    }
-
-    public void setQuantidade(int quantidade) {
-        this.quantidade = quantidade;
-    }
 }

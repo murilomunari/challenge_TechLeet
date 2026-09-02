@@ -6,17 +6,22 @@ public class MissaoUsuario {
     private int idUsuario;
     private int idMissao;
     private String status;
+    private LocalDate dataRealizacao;
     private LocalDate dataInicio;
+    private LocalDate dataFim;
 
     public MissaoUsuario() {
     }
 
-    public MissaoUsuario(int id, int idUsuario, int idMissao, String status, LocalDate dataInicio) {
+    public MissaoUsuario(int id, int idUsuario, int idMissao, String status,
+                         LocalDate dataRealizacao, LocalDate dataInicio, LocalDate dataFim) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.idMissao = idMissao;
         this.status = status;
+        this.dataRealizacao = dataRealizacao;
         this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
     }
 
     public int getId() {
@@ -51,6 +56,14 @@ public class MissaoUsuario {
         this.status = status;
     }
 
+    public LocalDate getDataRealizacao() {
+        return this.dataRealizacao;
+    }
+
+    public void setDataRealizacao(LocalDate dataRealizacao) {
+        this.dataRealizacao = dataRealizacao;
+    }
+
     public LocalDate getDataInicio() {
         return this.dataInicio;
     }
@@ -59,19 +72,28 @@ public class MissaoUsuario {
         this.dataInicio = dataInicio;
     }
 
+    public LocalDate getDataFim() {
+        return this.dataFim;
+    }
+
+    public void setDataFim(LocalDate dataFim) {
+        this.dataFim = dataFim;
+    }
+
     public void iniciar() {
-        if (this.status != null && !this.status.equalsIgnoreCase("nao iniciada")) {
+        if (this.status != null && !this.status.equalsIgnoreCase("pendente")) {
             throw new IllegalStateException("A missao ja foi iniciada ou finalizada.");
         }
-        this.status = "em andamento";
+        this.status = "andamento";
         this.dataInicio = LocalDate.now();
     }
 
     public void concluir() {
-        if (!"em andamento".equalsIgnoreCase(this.status)) {
+        if (!"andamento".equalsIgnoreCase(this.status)) {
             throw new IllegalStateException("Somente uma missao em andamento pode ser concluida.");
         }
         this.status = "concluida";
+        this.dataRealizacao = LocalDate.now();
     }
 
 }

@@ -2,7 +2,6 @@ package br.com.fiap.dto;
 
 public class Usuario {
     private int id;
-    private String nome;
     private String email;
     private String senha;
     private int pontos;
@@ -11,9 +10,8 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(int id, String nome, String email, String senha, int pontos, int idAvatar) {
+    public Usuario(int id, String email, String senha, int pontos, int idAvatar) {
         this.id = id;
-        this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.pontos = pontos;
@@ -44,14 +42,6 @@ public class Usuario {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getNome() {
-        return this.nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
     }
 
     public String getEmail() {

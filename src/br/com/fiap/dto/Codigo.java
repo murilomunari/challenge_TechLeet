@@ -8,17 +8,20 @@ public class Codigo {
     private LocalDate dataValidade;
     private String status;
     private LocalDate dataResgate;
+    private int idItem;
     private int idParceria;
 
     public Codigo() {
     }
 
-    public Codigo(int id, String codigoResgate, LocalDate dataValidade, String status, int idParceria) {
+    public Codigo(int id, String codigoResgate, String status, LocalDate dataValidade,
+                  LocalDate dataResgate, int idItem, int idParceria) {
         this.id = id;
         this.codigoResgate = codigoResgate;
-        this.dataValidade = dataValidade;
         this.status = status;
-        this.dataResgate = null;
+        this.dataValidade = dataValidade;
+        this.dataResgate = dataResgate;
+        this.idItem = idItem;
         this.idParceria = idParceria;
     }
 
@@ -61,6 +64,14 @@ public class Codigo {
 
     public void setDataResgate(LocalDate dataResgate) {
         this.dataResgate = dataResgate;
+    }
+
+    public int getIdItem() {
+        return this.idItem;
+    }
+
+    public void setIdItem(int idItem) {
+        this.idItem = idItem;
     }
 
     public int getIdParceria() {
