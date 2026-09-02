@@ -22,20 +22,24 @@ public class ItemDAO {
 
     public ArrayList<Item> ListarItem() {
         String sql = "select * from Itens order by id_item";
-        ArrayList<Item> items = new ArrayList<>();
+        ArrayList<Item> listaItem = new ArrayList<>();
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Item item = new Item();
-                item.setId(rs.getInt("id_item"));
-                item.setNome(rs.getString("nome"));
-                item.setModelo(rs.getString("modelo_item"));
-                item.setValorPontos(rs.getInt("valor_pontos"));
-                item.setTipo(rs.getString("tipo"));
-                items.add(item);
+            if (rs != null) {
+                while (rs.next()) {
+                    Item item = new Item();
+                    item.setId(rs.getInt(1));
+                    item.setNome(rs.getString(2));
+                    item.setModelo(rs.getString(3));
+                    item.setValorPontos(rs.getInt(4));
+                    item.setTipo(rs.getString(5));
+                    listaItem.add(item);
+                }
+                return listaItem;
+            } else {
+                return null;
             }
-            return items;
         } catch (SQLException e) {
             System.out.println("Erro de SQL: " + e.getMessage());
             return null;
@@ -55,8 +59,9 @@ public class ItemDAO {
 
             if (ps.executeUpdate() > 0) {
                 return "Item inserido com sucesso!";
+            } else {
+                return "Erro ao inserir item!";
             }
-            return "Erro ao inserir item!";
         } catch (SQLException e) {
             return "Erro ao inserir item!";
         }
@@ -75,8 +80,9 @@ public class ItemDAO {
 
             if (ps.executeUpdate() > 0) {
                 return "Item alterado com sucesso!";
+            } else {
+                return "Erro ao alterar item!";
             }
-            return "Item nao encontrado!";
         } catch (SQLException e) {
             return "Erro ao alterar item!";
         }
@@ -89,8 +95,9 @@ public class ItemDAO {
             ps.setInt(1, item.getId());
             if (ps.executeUpdate() > 0) {
                 return "Item deletado com sucesso!";
+            } else {
+                return "Erro ao deletar item!";
             }
-            return "Item nao encontrado!";
         } catch (SQLException e) {
             return "Erro ao deletar item!";
         }

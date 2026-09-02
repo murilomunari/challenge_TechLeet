@@ -27,20 +27,24 @@ public class InventarioDAO {
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Inventario inventario = new Inventario();
-                inventario.setId(rs.getInt("id_inventario"));
-                inventario.setIdUsuario(rs.getInt("id_usuario"));
-                inventario.setIdItem(rs.getInt("id_item"));
-                inventario.setOrigem(rs.getString("origem"));
+            if (rs != null) {
+                while (rs.next()) {
+                    Inventario inventario = new Inventario();
+                    inventario.setId(rs.getInt(1));
+                    inventario.setIdUsuario(rs.getInt(2));
+                    inventario.setIdItem(rs.getInt(3));
+                    inventario.setOrigem(rs.getString(4));
 
-                Date dataAquisicao = rs.getDate("data_aquisicao");
-                inventario.setDataAquisicao(dataAquisicao != null
-                        ? dataAquisicao.toLocalDate() : null);
+                    Date dataAquisicao = rs.getDate(5);
+                    inventario.setDataAquisicao(dataAquisicao != null
+                            ? dataAquisicao.toLocalDate() : null);
 
-                inventarios.add(inventario);
+                    inventarios.add(inventario);
+                }
+                return inventarios;
+            } else {
+                return null;
             }
-            return inventarios;
         } catch (SQLException e) {
             System.out.println("Erro de SQL: " + e.getMessage());
             return null;
@@ -61,8 +65,9 @@ public class InventarioDAO {
 
             if (ps.executeUpdate() > 0) {
                 return "Inventario inserido com sucesso!";
+            } else {
+                return "Erro ao inserir inventario!";
             }
-            return "Erro ao inserir inventario!";
         } catch (SQLException e) {
             return "Erro ao inserir inventario!";
         }
@@ -82,8 +87,9 @@ public class InventarioDAO {
 
             if (ps.executeUpdate() > 0) {
                 return "Inventario alterado com sucesso!";
+            } else {
+                return "Erro ao alterar inventario!";
             }
-            return "Inventario nao encontrado!";
         } catch (SQLException e) {
             return "Erro ao alterar inventario!";
         }
@@ -96,8 +102,9 @@ public class InventarioDAO {
             ps.setInt(1, inventario.getId());
             if (ps.executeUpdate() > 0) {
                 return "Inventario deletado com sucesso!";
+            } else {
+                return "Erro ao deletar inventario!";
             }
-            return "Inventario nao encontrado!";
         } catch (SQLException e) {
             return "Erro ao deletar inventario!";
         }

@@ -25,20 +25,24 @@ public class AvatarDAO {
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Avatar avatar = new Avatar();
-                avatar.setId(rs.getInt("id_avatar"));
-                avatar.setNome(rs.getString("nome"));
-                avatar.setIdCabelo(rs.getInt("id_cabelo"));
-                avatar.setIdRoupaCimaInt(rs.getInt("id_roupa_cima_int"));
-                avatar.setIdRoupaCimaExt(rs.getInt("id_roupa_cima_ext"));
-                avatar.setIdRoupaBaixo(rs.getInt("id_roupa_baixo"));
-                avatar.setIdCalcado(rs.getInt("id_calcado"));
-                avatar.setIdAcessorio(rs.getInt("id_acessorio"));
-                avatar.setIdUsuario(rs.getInt("id_usuario"));
-                avatares.add(avatar);
+            if (rs != null) {
+                while (rs.next()) {
+                    Avatar avatar = new Avatar();
+                    avatar.setId(rs.getInt(1));
+                    avatar.setNome(rs.getString(2));
+                    avatar.setIdCabelo(rs.getInt(3));
+                    avatar.setIdRoupaCimaInt(rs.getInt(4));
+                    avatar.setIdRoupaCimaExt(rs.getInt(5));
+                    avatar.setIdRoupaBaixo(rs.getInt(6));
+                    avatar.setIdCalcado(rs.getInt(7));
+                    avatar.setIdAcessorio(rs.getInt(8));
+                    avatar.setIdUsuario(rs.getInt(9));
+                    avatares.add(avatar);
+                }
+                return avatares;
+            } else {
+                return null;
             }
-            return avatares;
         } catch (SQLException e) {
             System.out.println("Erro de SQL: " + e.getMessage());
             return null;
@@ -63,8 +67,9 @@ public class AvatarDAO {
 
             if (ps.executeUpdate() > 0) {
                 return "Avatar inserido com sucesso!";
+            } else {
+                return "Erro ao inserir avatar!";
             }
-            return "Erro ao inserir avatar!";
         } catch (SQLException e) {
             return "Erro ao inserir avatar!";
         }
@@ -88,8 +93,9 @@ public class AvatarDAO {
 
             if (ps.executeUpdate() > 0) {
                 return "Avatar alterado com sucesso!";
+            } else {
+                return "Erro ao alterar avatar!";
             }
-            return "Avatar nao encontrado!";
         } catch (SQLException e) {
             return "Erro ao alterar avatar!";
         }
@@ -102,8 +108,9 @@ public class AvatarDAO {
             ps.setInt(1, avatar.getId());
             if (ps.executeUpdate() > 0) {
                 return "Avatar deletado com sucesso!";
+            } else {
+                return "Erro ao deletar avatar!";
             }
-            return "Avatar nao encontrado!";
         } catch (SQLException e) {
             return "Erro ao deletar avatar!";
         }

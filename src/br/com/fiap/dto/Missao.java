@@ -6,18 +6,16 @@ public class Missao {
     private String descricao;
     private int pontos;
     private String tipo;
-    private String status;
 
     public Missao() {
     }
 
-    public Missao(int id, String titulo, String descricao, int pontos, String tipo, String status) {
+    public Missao(int id, String titulo, String descricao, int pontos, String tipo) {
         this.id = id;
         this.titulo = titulo;
         this.descricao = descricao;
         this.pontos = pontos;
         this.tipo = tipo;
-        this.status = status;
     }
 
 
@@ -61,11 +59,4 @@ public class Missao {
         this.tipo = tipo;
     }
 
-    public String getStatus() {
-        return this.status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

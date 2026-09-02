@@ -24,16 +24,20 @@ public class UsuarioDAO {
         String sql = "select * from Usuarios order by id_usuario";
         ArrayList<Usuario> listaUsuarios = new ArrayList<>();
         try(PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Usuario usuario = new Usuario();
-                usuario.setId(rs.getInt("id_usuario"));
-                usuario.setEmail(rs.getString("email"));
-                usuario.setSenha(rs.getString("senha"));
-                usuario.setPontos(rs.getInt("pontos"));
-                usuario.setIdAvatar(rs.getInt("id_avatar"));
-                listaUsuarios.add(usuario);
+            if (rs != null) {
+                while (rs.next()) {
+                    Usuario usuario = new Usuario();
+                    usuario.setId(rs.getInt(1));
+                    usuario.setEmail(rs.getString(2));
+                    usuario.setSenha(rs.getString(3));
+                    usuario.setPontos(rs.getInt(4));
+                    usuario.setIdAvatar(rs.getInt(5));
+                    listaUsuarios.add(usuario);
+                }
+                return listaUsuarios;
+            } else {
+                return null;
             }
-            return listaUsuarios;
         } catch (SQLException e) {
             System.out.println("Erro de sql: " + e.getMessage());
             return null;
@@ -48,10 +52,13 @@ public class UsuarioDAO {
             ps.setString(3, usuario.getSenha());
             ps.setInt(4, usuario.getPontos());
             ps.setInt(5, usuario.getIdAvatar());
-            ps.executeUpdate();
-            return "Usuario inserido com sucesso";
+            if (ps.executeUpdate() > 0) {
+                return "Usuario inserido com sucesso!";
+            } else {
+                return "Erro ao inserir usuario!";
+            }
         } catch (SQLException e) {
-            return "Erro ao inserir usuario";
+            return "Erro ao inserir usuario!";
         }
     }
 
@@ -64,11 +71,12 @@ public class UsuarioDAO {
             ps.setInt(4, usuario.getIdAvatar());
             ps.setInt(5, usuario.getId());
             if (ps.executeUpdate() > 0) {
-                return "Usuario alterado com sucesso";
+                return "Usuario alterado com sucesso!";
+            } else {
+                return "Erro ao alterar usuario!";
             }
-            return "Usuario nao encontrado";
         } catch (SQLException e) {
-            return "Erro ao atualizar usuario";
+            return "Erro ao alterar usuario!";
         }
     }
 
