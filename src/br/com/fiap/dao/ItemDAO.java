@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class ItemDAO {
 
-    Connection con;
+    private Connection con;
 
     public ItemDAO(Connection con) {
         this.con = con;
@@ -21,41 +21,52 @@ public class ItemDAO {
     }
 
     public ArrayList<Item> ListarItem() {
-        String sql = "SELECT * FROM itens order by id_item";
+        String sql = "select * from Itens order by id_item";
         ArrayList<Item> items = new ArrayList<>();
-        try(PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Item item = new Item();
                 item.setId(rs.getInt("id_item"));
                 item.setNome(rs.getString("nome"));
-                item.setModelo(rs.getString("modelo"));
+                item.setModelo(rs.getString("modelo_item"));
                 item.setValorPontos(rs.getInt("valor_pontos"));
                 item.setTipo(rs.getString("tipo"));
+                items.add(item);
             }
-            return listarItem();
+            return items;
         } catch (SQLException e) {
-            System.out.println("Erro de sql" + e.getMessage());
-            return  null;
+            System.out.println("Erro de SQL: " + e.getMessage());
+            return null;
         }
     }
 
     public String InserirItem(Item item) {
-        String sql = "insert into Itens(id_item, nome, modelo_item, valor_pontos, tipo) values(?,?,?,?,?)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "insert into Itens(id_item, nome, modelo_item, valor_pontos, tipo) "
+                + "values (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, item.getId());
             ps.setString(2, item.getNome());
             ps.setString(3, item.getModelo());
             ps.setInt(4, item.getValorPontos());
             ps.setString(5, item.getTipo());
-            return "Usuario inserido com sucesso!";
+
+            if (ps.executeUpdate() > 0) {
+                return "Item inserido com sucesso!";
+            }
+            return "Erro ao inserir item!";
         } catch (SQLException e) {
-            return  "Erro ao inserir Itens ";
+            return "Erro ao inserir item!";
         }
     }
 
     public String AlterarItem(Item item) {
-        String sql = "update Itens set nome=?, modelo=?, valor_pontos=?, tipo=? where id_item=?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "update Itens set nome=?, modelo_item=?, valor_pontos=?, tipo=? "
+                + "where id_item=?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, item.getNome());
             ps.setString(2, item.getModelo());
             ps.setInt(3, item.getValorPontos());
@@ -63,25 +74,25 @@ public class ItemDAO {
             ps.setInt(5, item.getId());
 
             if (ps.executeUpdate() > 0) {
-                return "Usuario atualizado com sucesso!";
+                return "Item alterado com sucesso!";
             }
-            return "Item não encontrado!";
+            return "Item nao encontrado!";
         } catch (SQLException e) {
-            return  "Erro ao inserir Itens ";
+            return "Erro ao alterar item!";
         }
     }
 
     public String DeletarItem(Item item) {
         String sql = "delete from Itens where id_item=?";
+
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, item.getId());
             if (ps.executeUpdate() > 0) {
-                return "Usuario deletado com sucesso!";
-            } else {
-                return "Erro ao deletar Itens ";
+                return "Item deletado com sucesso!";
             }
+            return "Item nao encontrado!";
         } catch (SQLException e) {
-            return  "Erro ao deletar Itens ";
+            return "Erro ao deletar item!";
         }
     }
 }
