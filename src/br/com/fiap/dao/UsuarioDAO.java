@@ -63,13 +63,12 @@ public class UsuarioDAO {
     }
 
     public String AlterarUsuario(Usuario usuario) {
-        String sql = "update Usuarios set email=?, senha=?, pontos=?, id_avatar=? where id_usuario=?";
+        String sql = "update Usuarios set email=?, senha=?, pontos=? where id_usuario=?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, usuario.getEmail());
             ps.setString(2, usuario.getSenha());
             ps.setInt(3, usuario.getPontos());
-            ps.setInt(4, usuario.getIdAvatar());
-            ps.setInt(5, usuario.getId());
+            ps.setInt(4, usuario.getId());
             if (ps.executeUpdate() > 0) {
                 return "Usuario alterado com sucesso!";
             } else {
