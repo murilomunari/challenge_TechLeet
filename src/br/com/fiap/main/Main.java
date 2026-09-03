@@ -27,689 +27,576 @@ import java.util.ArrayList;
 
 public class Main {
 
-    private static Connection con;
-    private static UsuarioDAO usuarioDAO;
-    private static AvatarDAO avatarDAO;
-    private static ItemDAO itemDAO;
-    private static InventarioDAO inventarioDAO;
-    private static MissaoDAO missaoDAO;
-    private static MissaoUsuarioDAO missaoUsuarioDAO;
-    private static ParceriaDAO parceriaDAO;
-    private static CodigoDAO codigoDAO;
-    private static LogDAO logDAO;
-    private static boolean continuarPrograma = true;
-
     public static void main(String[] args) {
-        con = ConnectionFactory.getConnection();
+        Connection con = ConnectionFactory.getConnection();
 
         if (con == null) {
-            JOptionPane.showMessageDialog(null,
-                    "Nao foi possivel conectar ao banco de dados.",
-                    "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Não foi possível conectar ao banco de dados!");
             return;
         }
 
-        usuarioDAO = new UsuarioDAO(con);
-        avatarDAO = new AvatarDAO(con);
-        itemDAO = new ItemDAO(con);
-        inventarioDAO = new InventarioDAO(con);
-        missaoDAO = new MissaoDAO(con);
-        missaoUsuarioDAO = new MissaoUsuarioDAO(con);
-        parceriaDAO = new ParceriaDAO(con);
-        codigoDAO = new CodigoDAO(con);
-        logDAO = new LogDAO(con);
+        UsuarioDAO usuarioDAO = new UsuarioDAO(con);
+        AvatarDAO avatarDAO = new AvatarDAO(con);
+        ItemDAO itemDAO = new ItemDAO(con);
+        InventarioDAO inventarioDAO = new InventarioDAO(con);
+        MissaoDAO missaoDAO = new MissaoDAO(con);
+        MissaoUsuarioDAO missaoUsuarioDAO = new MissaoUsuarioDAO(con);
+        ParceriaDAO parceriaDAO = new ParceriaDAO(con);
+        CodigoDAO codigoDAO = new CodigoDAO(con);
+        LogDAO logDAO = new LogDAO(con);
 
-        JOptionPane.showMessageDialog(null,
-                "Bem-vindo ao TechLeet - Sistema de Gamificacao!");
+        boolean continuar = true;
+        int idUsuario = 0;
+        int idAvatar = 0;
+        int idInventario = 0;
+        int idMissaoUsuario = 0;
+        int idCodigo = 0;
+        int idLog = 0;
+        String auxiliar;
 
-        while (continuarPrograma) {
-            Usuario usuario = menuAcesso();
-            if (usuario != null) {
-                menuPrincipal(usuario);
+        ArrayList<Usuario> usuariosCadastrados = usuarioDAO.listaTodos();
+        if (usuariosCadastrados != null) {
+            for (Usuario usuarioCadastrado : usuariosCadastrados) {
+                if (usuarioCadastrado.getId() > idUsuario) {
+                    idUsuario = usuarioCadastrado.getId();
+                }
+            }
+        }
+
+        ArrayList<Avatar> avataresCadastrados = avatarDAO.ListarAvatar();
+        if (avataresCadastrados != null) {
+            for (Avatar avatarCadastrado : avataresCadastrados) {
+                if (avatarCadastrado.getId() > idAvatar) {
+                    idAvatar = avatarCadastrado.getId();
+                }
+            }
+        }
+
+        ArrayList<Inventario> inventariosCadastrados = inventarioDAO.ListarInventario();
+        if (inventariosCadastrados != null) {
+            for (Inventario inventarioCadastrado : inventariosCadastrados) {
+                if (inventarioCadastrado.getId() > idInventario) {
+                    idInventario = inventarioCadastrado.getId();
+                }
+            }
+        }
+
+        ArrayList<MissaoUsuario> missoesUsuarioCadastradas = missaoUsuarioDAO.ListarMissaoUsuario();
+        if (missoesUsuarioCadastradas != null) {
+            for (MissaoUsuario missaoUsuarioCadastrada : missoesUsuarioCadastradas) {
+                if (missaoUsuarioCadastrada.getId() > idMissaoUsuario) {
+                    idMissaoUsuario = missaoUsuarioCadastrada.getId();
+                }
+            }
+        }
+
+        ArrayList<Codigo> codigosCadastrados = codigoDAO.ListarCodigo();
+        if (codigosCadastrados != null) {
+            for (Codigo codigoCadastrado : codigosCadastrados) {
+                if (codigoCadastrado.getId() > idCodigo) {
+                    idCodigo = codigoCadastrado.getId();
+                }
+            }
+        }
+
+        ArrayList<Log> logsCadastrados = logDAO.ListarLog();
+        if (logsCadastrados != null) {
+            for (Log logCadastrado : logsCadastrados) {
+                if (logCadastrado.getId() > idLog) {
+                    idLog = logCadastrado.getId();
+                }
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, "Bem-vindo ao TechLeet - Sistema de Gamificação!");
+
+        while (continuar) {
+            try {
+                Usuario usuario = null;
+
+                while (usuario == null && continuar) {
+                    String menuAcesso = "=== ACESSO ===\n\n"
+                            + "1. Cadastrar usuário\n"
+                            + "2. Entrar\n"
+                            + "3. Encerrar programa";
+
+                    auxiliar = JOptionPane.showInputDialog(menuAcesso);
+                    int opcaoAcesso = Integer.parseInt(auxiliar);
+
+                    if (opcaoAcesso == 1) {
+                        String email = JOptionPane.showInputDialog("Digite seu email:");
+                        String senha = JOptionPane.showInputDialog("Digite sua senha:");
+                        auxiliar = JOptionPane.showInputDialog("Digite o ID do avatar associado ao usuário:");
+                        int avatarUsuario = Integer.parseInt(auxiliar);
+                        boolean emailCadastrado = false;
+
+                        usuariosCadastrados = usuarioDAO.listaTodos();
+                        if (usuariosCadastrados != null) {
+                            for (Usuario usuarioCadastrado : usuariosCadastrados) {
+                                if (usuarioCadastrado.getEmail().equalsIgnoreCase(email)) {
+                                    emailCadastrado = true;
+                                }
+                            }
+                        }
+
+                        if (emailCadastrado) {
+                            JOptionPane.showMessageDialog(null, "Esse email já está cadastrado!");
+                        } else {
+                            idUsuario = idUsuario + 1;
+                            usuario = new Usuario(idUsuario, email, senha, 0, avatarUsuario);
+                            String resultado = usuarioDAO.InserirUsuario(usuario);
+                            JOptionPane.showMessageDialog(null, resultado);
+
+                            if (resultado.contains("sucesso")) {
+                                idLog = idLog + 1;
+                                Log logCadastro = new Log(idLog, "CADASTRO",
+                                        "Usuário cadastrado: " + email,
+                                        LocalDate.now(), usuario.getId(), "ok");
+                                logDAO.InserirLog(logCadastro);
+                            } else {
+                                usuario = null;
+                            }
+                        }
+                    } else if (opcaoAcesso == 2) {
+                        String email = JOptionPane.showInputDialog("Digite seu email:");
+                        String senha = JOptionPane.showInputDialog("Digite sua senha:");
+
+                        usuariosCadastrados = usuarioDAO.listaTodos();
+                        if (usuariosCadastrados != null) {
+                            for (Usuario usuarioCadastrado : usuariosCadastrados) {
+                                if (usuarioCadastrado.getEmail().equalsIgnoreCase(email)
+                                        && usuarioCadastrado.getSenha().equals(senha)) {
+                                    usuario = usuarioCadastrado;
+                                }
+                            }
+                        }
+
+                        if (usuario == null) {
+                            JOptionPane.showMessageDialog(null, "Email ou senha inválidos!");
+                        } else {
+                            idLog = idLog + 1;
+                            Log logLogin = new Log(idLog, "SESSAO", "Login realizado",
+                                    LocalDate.now(), usuario.getId(), "ok");
+                            logDAO.InserirLog(logLogin);
+                            JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");
+                        }
+                    } else if (opcaoAcesso == 3) {
+                        continuar = false;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Opção inválida!");
+                    }
+                }
+
+                if (usuario != null) {
+                    boolean continuarMenu = true;
+
+                    while (continuarMenu) {
+                        String menuPrincipal = "=== MENU PRINCIPAL ===\n\n"
+                                + "Usuário: " + usuario.getEmail() + "\n"
+                                + "Pontos: " + usuario.getPontos() + "\n\n"
+                                + "1. Criar Avatar\n"
+                                + "2. Equipar item no Avatar\n"
+                                + "3. Fazer Missão\n"
+                                + "4. Gastar Pontos\n"
+                                + "5. Ver Informações\n"
+                                + "6. Deletar Usuário\n"
+                                + "7. Sair";
+
+                        auxiliar = JOptionPane.showInputDialog(menuPrincipal);
+                        int opcaoMenu = Integer.parseInt(auxiliar);
+
+                        if (opcaoMenu == 1) {
+                            Avatar avatar = null;
+                            avataresCadastrados = avatarDAO.ListarAvatar();
+
+                            if (avataresCadastrados != null) {
+                                for (Avatar avatarCadastrado : avataresCadastrados) {
+                                    if (avatarCadastrado.getIdUsuario() == usuario.getId()) {
+                                        avatar = avatarCadastrado;
+                                    }
+                                }
+                            }
+
+                            if (avatar != null) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Você já possui o avatar '" + avatar.getNome() + "'!");
+                            } else {
+                                String nomeAvatar = JOptionPane.showInputDialog("Digite o nome do seu Avatar:");
+                                idAvatar = idAvatar + 1;
+                                avatar = new Avatar(idAvatar, nomeAvatar,
+                                        0, 0, 0, 0, 0, 0, usuario.getId());
+
+                                String resultado = avatarDAO.InserirAvatar(avatar);
+                                JOptionPane.showMessageDialog(null, resultado);
+
+                                if (resultado.contains("sucesso")) {
+                                    idLog = idLog + 1;
+                                    Log logAvatar = new Log(idLog, "AVATAR",
+                                            "Avatar criado: " + nomeAvatar,
+                                            LocalDate.now(), usuario.getId(), "ok");
+                                    logDAO.InserirLog(logAvatar);
+                                }
+                            }
+                        } else if (opcaoMenu == 2) {
+                            Avatar avatar = null;
+                            avataresCadastrados = avatarDAO.ListarAvatar();
+
+                            if (avataresCadastrados != null) {
+                                for (Avatar avatarCadastrado : avataresCadastrados) {
+                                    if (avatarCadastrado.getIdUsuario() == usuario.getId()) {
+                                        avatar = avatarCadastrado;
+                                    }
+                                }
+                            }
+
+                            if (avatar == null) {
+                                JOptionPane.showMessageDialog(null, "Crie um avatar primeiro! (Opção 1)");
+                            } else {
+                                ArrayList<Item> itens = itemDAO.ListarItem();
+                                ArrayList<Item> itensEquipaveis = new ArrayList<>();
+                                String menuItens = "Escolha um item para equipar:\n\n";
+
+                                if (itens != null) {
+                                    for (Item item : itens) {
+                                        String tipo = item.getTipo();
+                                        if (tipo != null && (tipo.equalsIgnoreCase("cabelo")
+                                                || tipo.equalsIgnoreCase("roupa_cima_int")
+                                                || tipo.equalsIgnoreCase("roupa_cima_ext")
+                                                || tipo.equalsIgnoreCase("roupa_baixo")
+                                                || tipo.equalsIgnoreCase("calcado")
+                                                || tipo.equalsIgnoreCase("acessorio"))) {
+                                            itensEquipaveis.add(item);
+                                            menuItens = menuItens + itensEquipaveis.size() + ". "
+                                                    + item.getNome() + " - " + item.getTipo() + "\n";
+                                        }
+                                    }
+                                }
+
+                                if (itensEquipaveis.isEmpty()) {
+                                    JOptionPane.showMessageDialog(null, "Não há itens cadastrados no banco!");
+                                } else {
+                                    auxiliar = JOptionPane.showInputDialog(menuItens);
+                                    int opcaoItem = Integer.parseInt(auxiliar);
+
+                                    if (opcaoItem >= 1 && opcaoItem <= itensEquipaveis.size()) {
+                                        Item itemEscolhido = itensEquipaveis.get(opcaoItem - 1);
+                                        avatar.equiparItem(itemEscolhido);
+                                        String resultado = avatarDAO.AlterarAvatar(avatar);
+
+                                        if (resultado.contains("sucesso")) {
+                                            boolean possuiItem = false;
+                                            inventariosCadastrados = inventarioDAO.ListarInventario();
+
+                                            if (inventariosCadastrados != null) {
+                                                for (Inventario inventario : inventariosCadastrados) {
+                                                    if (inventario.getIdUsuario() == usuario.getId()
+                                                            && inventario.getIdItem() == itemEscolhido.getId()) {
+                                                        possuiItem = true;
+                                                    }
+                                                }
+                                            }
+
+                                            if (!possuiItem) {
+                                                idInventario = idInventario + 1;
+                                                Inventario inventario = new Inventario(idInventario,
+                                                        usuario.getId(), itemEscolhido.getId(),
+                                                        "personalizacao", LocalDate.now());
+                                                inventarioDAO.InserirInventario(inventario);
+                                            }
+
+                                            idLog = idLog + 1;
+                                            Log logItem = new Log(idLog, "EQUIPAR",
+                                                    "Item equipado: " + itemEscolhido.getNome(),
+                                                    LocalDate.now(), usuario.getId(), "ok");
+                                            logDAO.InserirLog(logItem);
+                                            JOptionPane.showMessageDialog(null, "Item equipado com sucesso!");
+                                        } else {
+                                            JOptionPane.showMessageDialog(null, resultado);
+                                        }
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Opção inválida!");
+                                    }
+                                }
+                            }
+                        } else if (opcaoMenu == 3) {
+                            ArrayList<Missao> missoes = missaoDAO.ListaMissao();
+
+                            if (missoes == null || missoes.isEmpty()) {
+                                JOptionPane.showMessageDialog(null, "Não há missões cadastradas no banco!");
+                            } else {
+                                String menuMissoes = "Escolha uma missão:\n\n";
+                                for (int i = 0; i < missoes.size(); i++) {
+                                    Missao missao = missoes.get(i);
+                                    menuMissoes = menuMissoes + (i + 1) + ". " + missao.getTitulo()
+                                            + " (" + missao.getPontos() + " pontos)\n";
+                                }
+
+                                auxiliar = JOptionPane.showInputDialog(menuMissoes);
+                                int opcaoMissao = Integer.parseInt(auxiliar);
+
+                                if (opcaoMissao >= 1 && opcaoMissao <= missoes.size()) {
+                                    Missao missao = missoes.get(opcaoMissao - 1);
+                                    boolean concluida = false;
+                                    missoesUsuarioCadastradas = missaoUsuarioDAO.ListarMissaoUsuario();
+
+                                    if (missoesUsuarioCadastradas != null) {
+                                        for (MissaoUsuario registro : missoesUsuarioCadastradas) {
+                                            if (registro.getIdUsuario() == usuario.getId()
+                                                    && registro.getIdMissao() == missao.getId()
+                                                    && registro.getStatus().equalsIgnoreCase("concluida")) {
+                                                concluida = true;
+                                            }
+                                        }
+                                    }
+
+                                    if (concluida) {
+                                        JOptionPane.showMessageDialog(null, "Você já concluiu essa missão!");
+                                    } else {
+                                        idMissaoUsuario = idMissaoUsuario + 1;
+                                        MissaoUsuario registro = new MissaoUsuario(idMissaoUsuario,
+                                                usuario.getId(), missao.getId(), "pendente",
+                                                null, null, null);
+                                        registro.iniciar();
+                                        registro.concluir();
+                                        registro.setDataFim(LocalDate.now());
+
+                                        String resultado = missaoUsuarioDAO.InserirMissaoUsuario(registro);
+                                        if (resultado.contains("sucesso")) {
+                                            usuario.adicionarPontos(missao.getPontos());
+                                            usuarioDAO.AlterarUsuario(usuario);
+
+                                            idLog = idLog + 1;
+                                            Log logMissao = new Log(idLog, "MISSAO",
+                                                    "Missão concluída: " + missao.getTitulo()
+                                                            + " (+" + missao.getPontos() + " pts)",
+                                                    LocalDate.now(), usuario.getId(), "ok");
+                                            logDAO.InserirLog(logMissao);
+
+                                            JOptionPane.showMessageDialog(null,
+                                                    "Missão concluída!\n\nVocê ganhou "
+                                                            + missao.getPontos() + " pontos!\nTotal: "
+                                                            + usuario.getPontos() + " pontos");
+                                        } else {
+                                            JOptionPane.showMessageDialog(null, resultado);
+                                        }
+                                    }
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Opção inválida!");
+                                }
+                            }
+                        } else if (opcaoMenu == 4) {
+                            ArrayList<Item> itens = itemDAO.ListarItem();
+                            ArrayList<Item> itensDisponiveis = new ArrayList<>();
+                            inventariosCadastrados = inventarioDAO.ListarInventario();
+                            String menuCompra = "Escolha um item para comprar:\n\n";
+
+                            if (itens != null) {
+                                for (Item item : itens) {
+                                    boolean possuiItem = false;
+                                    if (inventariosCadastrados != null) {
+                                        for (Inventario inventario : inventariosCadastrados) {
+                                            if (inventario.getIdUsuario() == usuario.getId()
+                                                    && inventario.getIdItem() == item.getId()) {
+                                                possuiItem = true;
+                                            }
+                                        }
+                                    }
+
+                                    if (item.getValorPontos() > 0 && !possuiItem) {
+                                        itensDisponiveis.add(item);
+                                        menuCompra = menuCompra + itensDisponiveis.size() + ". "
+                                                + item.getNome() + " (" + item.getValorPontos()
+                                                + " pontos)\n";
+                                    }
+                                }
+                            }
+
+                            if (itensDisponiveis.isEmpty()) {
+                                JOptionPane.showMessageDialog(null, "Não há itens disponíveis para compra!");
+                            } else {
+                                auxiliar = JOptionPane.showInputDialog(menuCompra);
+                                int opcaoCompra = Integer.parseInt(auxiliar);
+
+                                if (opcaoCompra >= 1 && opcaoCompra <= itensDisponiveis.size()) {
+                                    Item itemComprado = itensDisponiveis.get(opcaoCompra - 1);
+
+                                    if (usuario.getPontos() < itemComprado.getValorPontos()) {
+                                        JOptionPane.showMessageDialog(null, "Você não tem pontos suficientes!");
+                                    } else {
+                                        ArrayList<Parceria> parcerias = parceriaDAO.ListarParceria();
+                                        ArrayList<Parceria> parceriasAtivas = new ArrayList<>();
+                                        String menuParcerias = "Escolha uma parceria:\n\n";
+
+                                        if (parcerias != null) {
+                                            for (Parceria parceria : parcerias) {
+                                                if (parceria.getStatus().equalsIgnoreCase("ativa")) {
+                                                    parceriasAtivas.add(parceria);
+                                                    menuParcerias = menuParcerias + parceriasAtivas.size()
+                                                            + ". " + parceria.getNome() + "\n";
+                                                }
+                                            }
+                                        }
+
+                                        if (parceriasAtivas.isEmpty()) {
+                                            JOptionPane.showMessageDialog(null, "Não há parcerias ativas!");
+                                        } else {
+                                            auxiliar = JOptionPane.showInputDialog(menuParcerias);
+                                            int opcaoParceria = Integer.parseInt(auxiliar);
+
+                                            if (opcaoParceria >= 1
+                                                    && opcaoParceria <= parceriasAtivas.size()) {
+                                                Parceria parceria = parceriasAtivas.get(opcaoParceria - 1);
+                                                idCodigo = idCodigo + 1;
+                                                Codigo codigo = new Codigo(idCodigo,
+                                                        "COD" + idCodigo + "-" + usuario.getId(),
+                                                        "ativo", LocalDate.now().plusDays(30), null,
+                                                        itemComprado.getId(), parceria.getId());
+                                                codigo.resgatar();
+
+                                                usuario.gastarPontos(itemComprado.getValorPontos());
+                                                usuarioDAO.AlterarUsuario(usuario);
+                                                codigoDAO.InserirCodigo(codigo);
+
+                                                idInventario = idInventario + 1;
+                                                Inventario inventario = new Inventario(idInventario,
+                                                        usuario.getId(), itemComprado.getId(),
+                                                        "compra", LocalDate.now());
+                                                inventarioDAO.InserirInventario(inventario);
+
+                                                idLog = idLog + 1;
+                                                Log logCompra = new Log(idLog, "COMPRA",
+                                                        "Item comprado: " + itemComprado.getNome()
+                                                                + " (-" + itemComprado.getValorPontos()
+                                                                + " pts)",
+                                                        LocalDate.now(), usuario.getId(), "ok");
+                                                logDAO.InserirLog(logCompra);
+
+                                                JOptionPane.showMessageDialog(null,
+                                                        "Item comprado com sucesso!\n\nCódigo: "
+                                                                + codigo.getCodigoResgate()
+                                                                + "\nParceria: " + parceria.getNome()
+                                                                + "\nSaldo: " + usuario.getPontos()
+                                                                + " pontos");
+                                            } else {
+                                                JOptionPane.showMessageDialog(null, "Opção inválida!");
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Opção inválida!");
+                                }
+                            }
+                        } else if (opcaoMenu == 5) {
+                            Avatar avatar = null;
+                            avataresCadastrados = avatarDAO.ListarAvatar();
+                            ArrayList<Item> itens = itemDAO.ListarItem();
+                            inventariosCadastrados = inventarioDAO.ListarInventario();
+                            missoesUsuarioCadastradas = missaoUsuarioDAO.ListarMissaoUsuario();
+
+                            if (avataresCadastrados != null) {
+                                for (Avatar avatarCadastrado : avataresCadastrados) {
+                                    if (avatarCadastrado.getIdUsuario() == usuario.getId()) {
+                                        avatar = avatarCadastrado;
+                                    }
+                                }
+                            }
+
+                            String info = "=== SUAS INFORMAÇÕES ===\n\n";
+                            info = info + "ID: " + usuario.getId() + "\n";
+                            info = info + "EMAIL: " + usuario.getEmail() + "\n";
+                            info = info + "PONTOS: " + usuario.getPontos() + "\n\n";
+
+                            if (avatar == null) {
+                                info = info + "AVATAR: Não criado\n";
+                            } else {
+                                info = info + "AVATAR: " + avatar.getNome() + "\n";
+                            }
+
+                            info = info + "\nINVENTÁRIO:\n";
+                            int quantidadeItens = 0;
+                            if (inventariosCadastrados != null) {
+                                for (Inventario inventario : inventariosCadastrados) {
+                                    if (inventario.getIdUsuario() == usuario.getId()) {
+                                        String nomeItem = "Item #" + inventario.getIdItem();
+                                        if (itens != null) {
+                                            for (Item item : itens) {
+                                                if (item.getId() == inventario.getIdItem()) {
+                                                    nomeItem = item.getNome();
+                                                }
+                                            }
+                                        }
+                                        info = info + "  - " + nomeItem + " ("
+                                                + inventario.getOrigem() + ")\n";
+                                        quantidadeItens = quantidadeItens + 1;
+                                    }
+                                }
+                            }
+
+                            if (quantidadeItens == 0) {
+                                info = info + "  Nenhum item adquirido.\n";
+                            }
+
+                            int missoesConcluidas = 0;
+                            if (missoesUsuarioCadastradas != null) {
+                                for (MissaoUsuario registro : missoesUsuarioCadastradas) {
+                                    if (registro.getIdUsuario() == usuario.getId()
+                                            && registro.getStatus().equalsIgnoreCase("concluida")) {
+                                        missoesConcluidas = missoesConcluidas + 1;
+                                    }
+                                }
+                            }
+
+                            info = info + "\nMISSÕES CONCLUÍDAS: " + missoesConcluidas;
+                            JOptionPane.showMessageDialog(null, info);
+                        } else if (opcaoMenu == 6) {
+                            String confirmar = JOptionPane.showInputDialog(
+                                    "Tem certeza que deseja deletar seu usuário?\n\n"
+                                            + "1. Sim\n"
+                                            + "2. Não");
+                            int opcaoDeletar = Integer.parseInt(confirmar);
+
+                            if (opcaoDeletar == 1) {
+                                String resultado = usuarioDAO.DeletarUsuario(usuario);
+                                JOptionPane.showMessageDialog(null, resultado);
+
+                                if (resultado.contains("sucesso")) {
+                                    continuarMenu = false;
+                                }
+                            } else if (opcaoDeletar != 2) {
+                                JOptionPane.showMessageDialog(null, "Opção inválida!");
+                            }
+                        } else if (opcaoMenu == 7) {
+                            String menuSaida = "O que você deseja fazer?\n\n"
+                                    + "1. Encerrar programa\n"
+                                    + "2. Entrar com outro usuário";
+                            auxiliar = JOptionPane.showInputDialog(menuSaida);
+                            int opcaoSaida = Integer.parseInt(auxiliar);
+
+                            if (opcaoSaida == 1) {
+                                idLog = idLog + 1;
+                                Log logFim = new Log(idLog, "SESSAO", "Sessão encerrada",
+                                        LocalDate.now(), usuario.getId(), "ok");
+                                logDAO.InserirLog(logFim);
+                                continuarMenu = false;
+                                continuar = false;
+                            } else if (opcaoSaida == 2) {
+                                continuarMenu = false;
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Opção inválida!");
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Opção inválida!");
+                        }
+                    }
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Erro: Digite um número válido!");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
             }
         }
 
         ConnectionFactory.closeConnection(con);
+        JOptionPane.showMessageDialog(null, "Obrigado por usar o TechLeet!");
     }
-
-    private static Usuario menuAcesso() {
-        Integer opcao = lerOpcao("=== ACESSO ===\n\n"
-                + "1. Cadastrar usuario\n"
-                + "2. Entrar\n"
-                + "3. Encerrar programa", 1, 3);
-
-        if (opcao == null || opcao == 3) {
-            continuarPrograma = false;
-            return null;
-        }
-        if (opcao == 1) {
-            return cadastrarUsuario();
-        }
-        return entrar();
-    }
-
-    private static Usuario cadastrarUsuario() {
-        String email = lerTexto("Digite seu email:");
-        if (email == null) {
-            return null;
-        }
-        String senha = lerTexto("Digite sua senha:");
-        if (senha == null) {
-            return null;
-        }
-
-        ArrayList<Usuario> usuarios = usuarioDAO.listaTodos();
-        if (usuarios != null) {
-            for (Usuario cadastrado : usuarios) {
-                if (cadastrado.getEmail().equalsIgnoreCase(email)) {
-                    JOptionPane.showMessageDialog(null, "Esse email ja esta cadastrado.");
-                    return null;
-                }
-            }
-        }
-
-        Integer idAvatar = lerInteiro("Digite o ID do avatar associado ao usuario:\n"
-                + "Use um ID de avatar existente no banco.");
-        if (idAvatar == null) {
-            return null;
-        }
-
-        Usuario usuario = new Usuario(proximoIdUsuario(usuarios), email, senha, 0, idAvatar);
-        String resultado = usuarioDAO.InserirUsuario(usuario);
-        JOptionPane.showMessageDialog(null, resultado);
-
-        if (!foiSucesso(resultado)) {
-            return null;
-        }
-
-        inserirLog(usuario.getId(), "CADASTRO", "Usuario cadastrado: " + email, "ok");
-        return usuario;
-    }
-
-    private static Usuario entrar() {
-        String email = lerTexto("Digite seu email:");
-        if (email == null) {
-            return null;
-        }
-        String senha = lerTexto("Digite sua senha:");
-        if (senha == null) {
-            return null;
-        }
-
-        ArrayList<Usuario> usuarios = usuarioDAO.listaTodos();
-        if (usuarios != null) {
-            for (Usuario usuario : usuarios) {
-                if (usuario.getEmail().equalsIgnoreCase(email)
-                        && usuario.getSenha().equals(senha)) {
-                    inserirLog(usuario.getId(), "SESSAO", "Login realizado", "ok");
-                    JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");
-                    return usuario;
-                }
-            }
-        }
-
-        JOptionPane.showMessageDialog(null, "Email ou senha invalidos.");
-        return null;
-    }
-
-    private static void menuPrincipal(Usuario usuario) {
-        boolean continuarMenu = true;
-
-        while (continuarPrograma && continuarMenu) {
-            Integer opcao = lerOpcao("=== MENU PRINCIPAL ===\n\n"
-                    + "Usuario: " + usuario.getEmail() + "\n"
-                    + "Pontos: " + usuario.getPontos() + "\n\n"
-                    + "1. Criar Avatar\n"
-                    + "2. Equipar item no Avatar\n"
-                    + "3. Fazer Missao\n"
-                    + "4. Gastar Pontos\n"
-                    + "5. Ver Informacoes\n"
-                    + "6. Sair", 1, 6);
-
-            if (opcao == null) {
-                continue;
-            }
-
-            if (opcao == 1) {
-                criarAvatar(usuario);
-            } else if (opcao == 2) {
-                equiparItem(usuario);
-            } else if (opcao == 3) {
-                fazerMissao(usuario);
-            } else if (opcao == 4) {
-                gastarPontos(usuario);
-            } else if (opcao == 5) {
-                mostrarInformacoes(usuario);
-            } else {
-                Integer opcaoSaida = lerOpcao("O que voce deseja fazer?\n\n"
-                        + "1. Encerrar programa\n"
-                        + "2. Entrar com outro usuario\n"
-                        + "3. Voltar", 1, 3);
-
-                if (opcaoSaida != null && opcaoSaida == 1) {
-                    inserirLog(usuario.getId(), "SESSAO", "Sessao encerrada", "ok");
-                    continuarPrograma = false;
-                    continuarMenu = false;
-                } else if (opcaoSaida != null && opcaoSaida == 2) {
-                    inserirLog(usuario.getId(), "SESSAO", "Logout realizado", "ok");
-                    continuarMenu = false;
-                }
-            }
-        }
-    }
-
-    private static void criarAvatar(Usuario usuario) {
-        ArrayList<Avatar> avatares = avatarDAO.ListarAvatar();
-        Avatar avatarAtual = localizarAvatar(usuario, avatares);
-
-        if (avatarAtual != null) {
-            JOptionPane.showMessageDialog(null,
-                    "Voce ja possui o avatar '" + avatarAtual.getNome() + "'.\n"
-                            + "Use a opcao 2 para equipa-lo.");
-            return;
-        }
-
-        String nome = lerTexto("Digite o nome do seu Avatar:");
-        if (nome == null) {
-            return;
-        }
-
-        Avatar avatar = new Avatar(proximoIdAvatar(avatares), nome,
-                0, 0, 0, 0, 0, 0, usuario.getId());
-        String resultado = avatarDAO.InserirAvatar(avatar);
-        JOptionPane.showMessageDialog(null, resultado);
-
-        if (foiSucesso(resultado)) {
-            inserirLog(usuario.getId(), "AVATAR", "Avatar criado: " + nome, "ok");
-        }
-    }
-
-    private static void equiparItem(Usuario usuario) {
-        Avatar avatar = localizarAvatar(usuario, avatarDAO.ListarAvatar());
-        if (avatar == null) {
-            JOptionPane.showMessageDialog(null, "Crie um avatar primeiro! (Opcao 1)");
-            return;
-        }
-
-        ArrayList<Item> todosItens = itemDAO.ListarItem();
-        ArrayList<Item> itensEquipaveis = new ArrayList<>();
-        if (todosItens != null) {
-            for (Item item : todosItens) {
-                if (tipoEquipavel(item.getTipo())) {
-                    itensEquipaveis.add(item);
-                }
-            }
-        }
-
-        Item item = selecionarItem(itensEquipaveis, "Escolha o item que deseja equipar:");
-        if (item == null) {
-            return;
-        }
-
-        try {
-            avatar.equiparItem(item);
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-            return;
-        }
-
-        String resultado = avatarDAO.AlterarAvatar(avatar);
-        if (!foiSucesso(resultado)) {
-            JOptionPane.showMessageDialog(null, resultado);
-            return;
-        }
-
-        ArrayList<Inventario> inventarios = inventarioDAO.ListarInventario();
-        if (!usuarioPossuiItem(usuario.getId(), item.getId(), inventarios)) {
-            Inventario inventario = new Inventario(proximoIdInventario(inventarios),
-                    usuario.getId(), item.getId(), "personalizacao", LocalDate.now());
-            inventarioDAO.InserirInventario(inventario);
-        }
-
-        inserirLog(usuario.getId(), "EQUIPAR", "Item equipado: " + item.getNome(), "ok");
-        JOptionPane.showMessageDialog(null, "Item equipado com sucesso!");
-    }
-
-    private static void fazerMissao(Usuario usuario) {
-        ArrayList<Missao> missoes = missaoDAO.ListaMissao();
-        Missao missao = selecionarMissao(missoes);
-        if (missao == null) {
-            return;
-        }
-
-        ArrayList<MissaoUsuario> missoesUsuario = missaoUsuarioDAO.ListarMissaoUsuario();
-        if (missaoConcluida(usuario.getId(), missao.getId(), missoesUsuario)) {
-            JOptionPane.showMessageDialog(null, "Voce ja concluiu essa missao.");
-            return;
-        }
-
-        MissaoUsuario registro = new MissaoUsuario(
-                proximoIdMissaoUsuario(missoesUsuario), usuario.getId(), missao.getId(),
-                "pendente", null, null, null);
-        registro.iniciar();
-        registro.concluir();
-        registro.setDataFim(LocalDate.now());
-
-        int pontosAnteriores = usuario.getPontos();
-        usuario.adicionarPontos(missao.getPontos());
-
-        String resultadoMissao = missaoUsuarioDAO.InserirMissaoUsuario(registro);
-        boolean salvo = false;
-
-        if (foiSucesso(resultadoMissao)) {
-            String resultadoUsuario = usuarioDAO.AlterarUsuario(usuario);
-            if (foiSucesso(resultadoUsuario)) {
-                salvo = true;
-            } else {
-                JOptionPane.showMessageDialog(null, resultadoUsuario);
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, resultadoMissao);
-        }
-
-        if (!salvo) {
-            usuario.setPontos(pontosAnteriores);
-            return;
-        }
-
-        inserirLog(usuario.getId(), "MISSAO",
-                "Missao concluida: " + missao.getTitulo()
-                        + " (+" + missao.getPontos() + " pts)", "ok");
-        JOptionPane.showMessageDialog(null,
-                "Missao concluida!\n\nVoce ganhou " + missao.getPontos()
-                        + " pontos!\nTotal: " + usuario.getPontos() + " pontos");
-    }
-
-    private static void gastarPontos(Usuario usuario) {
-        ArrayList<Item> itens = itemDAO.ListarItem();
-        ArrayList<Item> itensDisponiveis = new ArrayList<>();
-        ArrayList<Inventario> inventarios = inventarioDAO.ListarInventario();
-
-        if (itens != null) {
-            for (Item item : itens) {
-                if (item.getValorPontos() > 0
-                        && !usuarioPossuiItem(usuario.getId(), item.getId(), inventarios)) {
-                    itensDisponiveis.add(item);
-                }
-            }
-        }
-
-        Item item = selecionarItem(itensDisponiveis, "Escolha o item que deseja comprar:");
-        if (item == null) {
-            return;
-        }
-        if (usuario.getPontos() < item.getValorPontos()) {
-            inserirLog(usuario.getId(), "COMPRA",
-                    "Compra recusada: pontos insuficientes", "falha");
-            JOptionPane.showMessageDialog(null, "Voce nao tem pontos suficientes!");
-            return;
-        }
-
-        Parceria parceria = selecionarParceriaAtiva(parceriaDAO.ListarParceria());
-        if (parceria == null) {
-            return;
-        }
-
-        ArrayList<Codigo> codigos = codigoDAO.ListarCodigo();
-        int idCodigo = proximoIdCodigo(codigos);
-        Codigo codigo = new Codigo(idCodigo, "COD" + idCodigo + "-" + usuario.getId(),
-                "ativo", LocalDate.now().plusDays(30), null, item.getId(), parceria.getId());
-        codigo.resgatar();
-
-        Inventario inventario = new Inventario(proximoIdInventario(inventarios),
-                usuario.getId(), item.getId(), "compra", LocalDate.now());
-
-        int pontosAnteriores = usuario.getPontos();
-        usuario.gastarPontos(item.getValorPontos());
-
-        String resultadoUsuario = usuarioDAO.AlterarUsuario(usuario);
-        boolean salvo = false;
-
-        if (foiSucesso(resultadoUsuario)) {
-            String resultadoCodigo = codigoDAO.InserirCodigo(codigo);
-            if (foiSucesso(resultadoCodigo)) {
-                String resultadoInventario = inventarioDAO.InserirInventario(inventario);
-                if (foiSucesso(resultadoInventario)) {
-                    salvo = true;
-                } else {
-                    JOptionPane.showMessageDialog(null, resultadoInventario);
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, resultadoCodigo);
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, resultadoUsuario);
-        }
-
-        if (!salvo) {
-            usuario.setPontos(pontosAnteriores);
-            return;
-        }
-
-        inserirLog(usuario.getId(), "COMPRA",
-                "Item comprado: " + item.getNome()
-                        + " (-" + item.getValorPontos() + " pts)", "ok");
-        JOptionPane.showMessageDialog(null,
-                "Item comprado com sucesso!\n\nCodigo: " + codigo.getCodigoResgate()
-                        + "\nParceria: " + parceria.getNome()
-                        + "\nSaldo: " + usuario.getPontos() + " pontos");
-    }
-
-    private static void mostrarInformacoes(Usuario usuario) {
-        Avatar avatar = localizarAvatar(usuario, avatarDAO.ListarAvatar());
-        ArrayList<Item> itens = itemDAO.ListarItem();
-        ArrayList<Inventario> inventarios = inventarioDAO.ListarInventario();
-        ArrayList<MissaoUsuario> missoesUsuario = missaoUsuarioDAO.ListarMissaoUsuario();
-
-        StringBuilder info = new StringBuilder("=== SUAS INFORMACOES ===\n\n");
-        info.append("ID: ").append(usuario.getId()).append('\n');
-        info.append("EMAIL: ").append(usuario.getEmail()).append('\n');
-        info.append("PONTOS: ").append(usuario.getPontos()).append("\n\n");
-
-        if (avatar == null) {
-            info.append("AVATAR: Nao criado\n");
-        } else {
-            info.append("AVATAR: ").append(avatar.getNome()).append('\n');
-            adicionarEquipado(info, "Cabelo", avatar.getIdCabelo(), itens);
-            adicionarEquipado(info, "Roupa interna", avatar.getIdRoupaCimaInt(), itens);
-            adicionarEquipado(info, "Roupa externa", avatar.getIdRoupaCimaExt(), itens);
-            adicionarEquipado(info, "Roupa de baixo", avatar.getIdRoupaBaixo(), itens);
-            adicionarEquipado(info, "Calcado", avatar.getIdCalcado(), itens);
-            adicionarEquipado(info, "Acessorio", avatar.getIdAcessorio(), itens);
-        }
-
-        info.append("\nINVENTARIO:\n");
-        int quantidadeItens = 0;
-        if (inventarios != null) {
-            for (Inventario inventario : inventarios) {
-                if (inventario.getIdUsuario() == usuario.getId()) {
-                    Item item = localizarItem(inventario.getIdItem(), itens);
-                    info.append("  - ")
-                            .append(item != null ? item.getNome() : "Item #" + inventario.getIdItem())
-                            .append(" (").append(inventario.getOrigem()).append(")\n");
-                    quantidadeItens++;
-                }
-            }
-        }
-        if (quantidadeItens == 0) {
-            info.append("  Nenhum item adquirido.\n");
-        }
-
-        int concluidas = 0;
-        if (missoesUsuario != null) {
-            for (MissaoUsuario registro : missoesUsuario) {
-                if (registro.getIdUsuario() == usuario.getId()
-                        && "concluida".equalsIgnoreCase(registro.getStatus())) {
-                    concluidas++;
-                }
-            }
-        }
-        info.append("\nMISSOES CONCLUIDAS: ").append(concluidas);
-
-        JOptionPane.showMessageDialog(null, info.toString());
-    }
-
-    private static Item selecionarItem(ArrayList<Item> itens, String titulo) {
-        if (itens == null || itens.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nao ha itens disponiveis no banco.");
-            return null;
-        }
-
-        StringBuilder menu = new StringBuilder(titulo).append("\n\n");
-        for (int i = 0; i < itens.size(); i++) {
-            Item item = itens.get(i);
-            menu.append(i + 1).append(". ").append(item.getNome())
-                    .append(" [").append(item.getTipo()).append("] - ")
-                    .append(item.getValorPontos()).append(" pontos\n");
-        }
-        menu.append(itens.size() + 1).append(". Cancelar");
-
-        Integer opcao = lerOpcao(menu.toString(), 1, itens.size() + 1);
-        if (opcao == null || opcao == itens.size() + 1) {
-            return null;
-        }
-        return itens.get(opcao - 1);
-    }
-
-    private static Missao selecionarMissao(ArrayList<Missao> missoes) {
-        if (missoes == null || missoes.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nao ha missoes cadastradas no banco.");
-            return null;
-        }
-
-        StringBuilder menu = new StringBuilder("Escolha uma missao:\n\n");
-        for (int i = 0; i < missoes.size(); i++) {
-            Missao missao = missoes.get(i);
-            menu.append(i + 1).append(". ").append(missao.getTitulo())
-                    .append(" (").append(missao.getPontos()).append(" pontos)\n");
-        }
-        menu.append(missoes.size() + 1).append(". Cancelar");
-
-        Integer opcao = lerOpcao(menu.toString(), 1, missoes.size() + 1);
-        if (opcao == null || opcao == missoes.size() + 1) {
-            return null;
-        }
-        return missoes.get(opcao - 1);
-    }
-
-    private static Parceria selecionarParceriaAtiva(ArrayList<Parceria> parcerias) {
-        ArrayList<Parceria> ativas = new ArrayList<>();
-        LocalDate hoje = LocalDate.now();
-
-        if (parcerias != null) {
-            for (Parceria parceria : parcerias) {
-                boolean dentroDoPeriodo = (parceria.getDataInicio() == null
-                        || !hoje.isBefore(parceria.getDataInicio()))
-                        && (parceria.getDataFim() == null
-                        || !hoje.isAfter(parceria.getDataFim()));
-                if ("ativa".equalsIgnoreCase(parceria.getStatus()) && dentroDoPeriodo) {
-                    ativas.add(parceria);
-                }
-            }
-        }
-
-        if (ativas.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nao ha parcerias ativas no banco.");
-            return null;
-        }
-
-        StringBuilder menu = new StringBuilder("Escolha uma parceria:\n\n");
-        for (int i = 0; i < ativas.size(); i++) {
-            menu.append(i + 1).append(". ").append(ativas.get(i).getNome()).append('\n');
-        }
-        menu.append(ativas.size() + 1).append(". Cancelar");
-
-        Integer opcao = lerOpcao(menu.toString(), 1, ativas.size() + 1);
-        if (opcao == null || opcao == ativas.size() + 1) {
-            return null;
-        }
-        return ativas.get(opcao - 1);
-    }
-
-    private static Avatar localizarAvatar(Usuario usuario, ArrayList<Avatar> avatares) {
-        if (avatares != null) {
-            for (Avatar avatar : avatares) {
-                if (avatar.getIdUsuario() == usuario.getId()
-                        || avatar.getId() == usuario.getIdAvatar()) {
-                    return avatar;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static Item localizarItem(int idItem, ArrayList<Item> itens) {
-        if (itens != null) {
-            for (Item item : itens) {
-                if (item.getId() == idItem) {
-                    return item;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static void adicionarEquipado(StringBuilder info, String nome,
-                                           int idItem, ArrayList<Item> itens) {
-        if (idItem > 0) {
-            Item item = localizarItem(idItem, itens);
-            info.append("  - ").append(nome).append(": ")
-                    .append(item != null ? item.getNome() : "Item #" + idItem).append('\n');
-        }
-    }
-
-    private static boolean tipoEquipavel(String tipo) {
-        return tipo != null && (tipo.equalsIgnoreCase("cabelo")
-                || tipo.equalsIgnoreCase("roupa_cima_int")
-                || tipo.equalsIgnoreCase("roupa_cima_ext")
-                || tipo.equalsIgnoreCase("roupa_baixo")
-                || tipo.equalsIgnoreCase("calcado")
-                || tipo.equalsIgnoreCase("acessorio"));
-    }
-
-    private static boolean usuarioPossuiItem(int idUsuario, int idItem,
-                                              ArrayList<Inventario> inventarios) {
-        if (inventarios != null) {
-            for (Inventario inventario : inventarios) {
-                if (inventario.getIdUsuario() == idUsuario
-                        && inventario.getIdItem() == idItem) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static boolean missaoConcluida(int idUsuario, int idMissao,
-                                            ArrayList<MissaoUsuario> registros) {
-        if (registros != null) {
-            for (MissaoUsuario registro : registros) {
-                if (registro.getIdUsuario() == idUsuario
-                        && registro.getIdMissao() == idMissao
-                        && "concluida".equalsIgnoreCase(registro.getStatus())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static void inserirLog(int idUsuario, String assunto,
-                                   String descricao, String status) {
-        ArrayList<Log> logs = logDAO.ListarLog();
-        Log log = new Log(proximoIdLog(logs), assunto, descricao,
-                LocalDate.now(), idUsuario, status);
-        logDAO.InserirLog(log);
-    }
-
-    private static boolean foiSucesso(String resultado) {
-        return resultado != null && resultado.toLowerCase().contains("com sucesso");
-    }
-
-    private static Integer lerOpcao(String mensagem, int minimo, int maximo) {
-        while (true) {
-            String texto = JOptionPane.showInputDialog(mensagem);
-            if (texto == null) {
-                return null;
-            }
-            try {
-                int opcao = Integer.parseInt(texto.trim());
-                if (opcao >= minimo && opcao <= maximo) {
-                    return opcao;
-                }
-            } catch (NumberFormatException ignored) {
-                // Exibe a mesma mensagem para letras e numeros fora do intervalo.
-            }
-            JOptionPane.showMessageDialog(null, "Opcao invalida!");
-        }
-    }
-
-    private static Integer lerInteiro(String mensagem) {
-        while (true) {
-            String texto = JOptionPane.showInputDialog(mensagem);
-            if (texto == null) {
-                return null;
-            }
-            try {
-                return Integer.parseInt(texto.trim());
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Digite um numero valido!");
-            }
-        }
-    }
-
-    private static String lerTexto(String mensagem) {
-        while (true) {
-            String texto = JOptionPane.showInputDialog(mensagem);
-            if (texto == null) {
-                return null;
-            }
-            texto = texto.trim();
-            if (!texto.isEmpty()) {
-                return texto;
-            }
-            JOptionPane.showMessageDialog(null, "O campo nao pode ficar vazio.");
-        }
-    }
-
-    private static int proximoIdUsuario(ArrayList<Usuario> lista) {
-        int maior = 0;
-        if (lista != null) {
-            for (Usuario objeto : lista) {
-                maior = Math.max(maior, objeto.getId());
-            }
-        }
-        return maior + 1;
-    }
-
-    private static int proximoIdAvatar(ArrayList<Avatar> lista) {
-        int maior = 0;
-        if (lista != null) {
-            for (Avatar objeto : lista) {
-                maior = Math.max(maior, objeto.getId());
-            }
-        }
-        return maior + 1;
-    }
-
-    private static int proximoIdInventario(ArrayList<Inventario> lista) {
-        int maior = 0;
-        if (lista != null) {
-            for (Inventario objeto : lista) {
-                maior = Math.max(maior, objeto.getId());
-            }
-        }
-        return maior + 1;
-    }
-
-    private static int proximoIdMissaoUsuario(ArrayList<MissaoUsuario> lista) {
-        int maior = 0;
-        if (lista != null) {
-            for (MissaoUsuario objeto : lista) {
-                maior = Math.max(maior, objeto.getId());
-            }
-        }
-        return maior + 1;
-    }
-
-    private static int proximoIdCodigo(ArrayList<Codigo> lista) {
-        int maior = 0;
-        if (lista != null) {
-            for (Codigo objeto : lista) {
-                maior = Math.max(maior, objeto.getId());
-            }
-        }
-        return maior + 1;
-    }
-
-    private static int proximoIdLog(ArrayList<Log> lista) {
-        int maior = 0;
-        if (lista != null) {
-            for (Log objeto : lista) {
-                maior = Math.max(maior, objeto.getId());
-            }
-        }
-        return maior + 1;
-    }
-
 }
