@@ -21,7 +21,7 @@ public class MissaoDAO {
     }
 
     public ArrayList<Missao> ListaMissao() {
-        String sql = "select * from Missoes order by id_missao";
+        String sql = "select * from MISSOES order by id_missao";
         ArrayList<Missao> listaMissao = new ArrayList<>();
         try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs != null) {
@@ -45,7 +45,7 @@ public class MissaoDAO {
     }
 
     public String InserirMissao(Missao missao) {
-        String sql = "insert into Missoes(id_missao, titulo, descricao, pontos, tipo) "
+        String sql = "insert into MISSOES(id_missao, titulo, descricao, pontos, tipo) "
                 + "values (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, missao.getId());
@@ -64,7 +64,7 @@ public class MissaoDAO {
     }
 
     public String AlterarMissao(Missao missao) {
-        String sql = "update Missoes set titulo=?, descricao=?, pontos=?, tipo=? "
+        String sql = "update MISSOES set titulo=?, descricao=?, pontos=?, tipo=? "
                 + "where id_missao=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, missao.getTitulo());
@@ -83,7 +83,7 @@ public class MissaoDAO {
     }
 
     public String DeletarMissao(Missao missao) {
-        String sql = "delete from Missoes where id_missao=?";
+        String sql = "delete from MISSOES where id_missao=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, missao.getId());
             if (ps.executeUpdate() > 0) {

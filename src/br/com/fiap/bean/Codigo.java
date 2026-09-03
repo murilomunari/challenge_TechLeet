@@ -90,7 +90,7 @@ public class Codigo {
         if (dataAtual == null) {
             throw new CodigoException("A data atual deve ser informada.");
         }
-        return "ativo".equalsIgnoreCase(this.status)
+        return "DISPONIVEL".equalsIgnoreCase(this.status)
                 && this.dataResgate == null
                 && this.dataValidade != null
                 && !dataAtual.isAfter(this.dataValidade);
@@ -101,7 +101,7 @@ public class Codigo {
             return false;
         }
         this.dataResgate = dataResgate;
-        this.status = "resgatado";
+        this.status = "RESGATADO";
         return true;
     }
 

@@ -1,21 +1,26 @@
 package br.com.fiap.bean;
 
+import java.time.LocalDate;
+
 public class Usuario {
     private int id;
+    private String nome;
     private String email;
     private String senha;
+    private LocalDate dataNascimento;
     private int pontos;
-    private int idAvatar;
 
     public Usuario() {
     }
 
-    public Usuario(int id, String email, String senha, int pontos, int idAvatar) {
+    public Usuario(int id, String nome, String email, String senha,
+                   LocalDate dataNascimento, int pontos) {
         this.id = id;
+        this.nome = nome;
         this.email = email;
         this.senha = senha;
+        this.dataNascimento = dataNascimento;
         this.pontos = pontos;
-        this.idAvatar = idAvatar;
     }
 
     public void adicionarPontos(int quantidade) {
@@ -44,6 +49,14 @@ public class Usuario {
         this.id = id;
     }
 
+    public String getNome() {
+        return this.nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
     public String getEmail() {
         return this.email;
     }
@@ -60,6 +73,14 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public LocalDate getDataNascimento() {
+        return this.dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
     public int getPontos() {
         return this.pontos;
     }
@@ -68,11 +89,4 @@ public class Usuario {
         this.pontos = pontos;
     }
 
-    public int getIdAvatar() {
-        return this.idAvatar;
-    }
-
-    public void setIdAvatar(int idAvatar) {
-        this.idAvatar = idAvatar;
-    }
 }

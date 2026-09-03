@@ -18,10 +18,10 @@ public class Item {
         this.tipo = tipo;
     }
 
-    public boolean verificarCompatibilidade(String tipoDesejado) {
-        return this.tipo != null
-                && tipoDesejado != null
-                && this.tipo.equalsIgnoreCase(tipoDesejado);
+    public boolean verificarCompatibilidade(String modeloDesejado) {
+        return this.modelo != null
+                && modeloDesejado != null
+                && this.modelo.equalsIgnoreCase(modeloDesejado);
     }
 
     public int getId() {

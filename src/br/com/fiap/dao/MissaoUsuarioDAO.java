@@ -22,7 +22,7 @@ public class MissaoUsuarioDAO {
     }
 
     public ArrayList<MissaoUsuario> ListarMissaoUsuario() {
-        String sql = "select * from Missoes_Usuario order by id_missao_usuario";
+        String sql = "select * from MISSOES_USUARIO order by id_missao_usuario";
         ArrayList<MissaoUsuario> listaMissaoUsuario = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs != null) {
@@ -57,7 +57,7 @@ public class MissaoUsuarioDAO {
     }
 
     public String InserirMissaoUsuario(MissaoUsuario missaoUsuario) {
-        String sql = "insert into Missoes_Usuario(id_missao_usuario, status, data_realizacao, "
+        String sql = "insert into MISSOES_USUARIO(id_missao_usuario, status, data_realizacao, "
                 + "id_usuario, id_missao, data_inicio, data_fim) values (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, missaoUsuario.getId());
@@ -81,7 +81,7 @@ public class MissaoUsuarioDAO {
     }
 
     public String AlterarMissaoUsuario(MissaoUsuario missaoUsuario) {
-        String sql = "update Missoes_Usuario set status=?, data_realizacao=?, id_usuario=?, "
+        String sql = "update MISSOES_USUARIO set status=?, data_realizacao=?, id_usuario=?, "
                 + "id_missao=?, data_inicio=?, data_fim=? where id_missao_usuario=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, missaoUsuario.getStatus());
@@ -105,7 +105,7 @@ public class MissaoUsuarioDAO {
     }
 
     public String DeletarMissaoUsuario(MissaoUsuario missaoUsuario) {
-        String sql = "delete from Missoes_Usuario where id_missao_usuario=?";
+        String sql = "delete from MISSOES_USUARIO where id_missao_usuario=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, missaoUsuario.getId());
             if (ps.executeUpdate() > 0) {

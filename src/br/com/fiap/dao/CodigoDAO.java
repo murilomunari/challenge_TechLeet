@@ -22,7 +22,7 @@ public class CodigoDAO {
     }
 
     public ArrayList<Codigo> ListarCodigo() {
-        String sql = "select * from Codigos order by id_codigo";
+        String sql = "select * from CODIGOS order by id_codigo";
         ArrayList<Codigo> listaCodigo = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs != null) {
@@ -53,8 +53,8 @@ public class CodigoDAO {
     }
 
     public String InserirCodigo(Codigo codigo) {
-        String sql = "insert into Codigos(id_codigo, codigo_resgate, status, data_validade, "
-                + "data_resgate, Itens_id_item, Parcerias_id_parceria) values (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into CODIGOS(id_codigo, codigo_resgate, status, data_validade, "
+                + "data_resgate, id_item, id_parceria) values (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, codigo.getId());
             ps.setString(2, codigo.getCodigoResgate());
@@ -76,8 +76,8 @@ public class CodigoDAO {
     }
 
     public String AlterarCodigo(Codigo codigo) {
-        String sql = "update Codigos set codigo_resgate=?, status=?, data_validade=?, "
-                + "data_resgate=?, Itens_id_item=?, Parcerias_id_parceria=? where id_codigo=?";
+        String sql = "update CODIGOS set codigo_resgate=?, status=?, data_validade=?, "
+                + "data_resgate=?, id_item=?, id_parceria=? where id_codigo=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, codigo.getCodigoResgate());
             ps.setString(2, codigo.getStatus());
@@ -99,7 +99,7 @@ public class CodigoDAO {
     }
 
     public String DeletarCodigo(Codigo codigo) {
-        String sql = "delete from Codigos where id_codigo=?";
+        String sql = "delete from CODIGOS where id_codigo=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, codigo.getId());
             if (ps.executeUpdate() > 0) {

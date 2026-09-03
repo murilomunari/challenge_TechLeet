@@ -22,7 +22,7 @@ public class InventarioDAO {
     }
 
     public ArrayList<Inventario> ListarInventario() {
-        String sql = "select * from Inventario order by id_inventario";
+        String sql = "select * from INVENTARIO order by id_inventario";
         ArrayList<Inventario> inventarios = new ArrayList<>();
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
@@ -52,7 +52,7 @@ public class InventarioDAO {
     }
 
     public String InserirInventario(Inventario inventario) {
-        String sql = "insert into Inventario(id_inventario, id_usuario, id_item, origem, "
+        String sql = "insert into INVENTARIO(id_inventario, id_usuario, id_item, origem, "
                 + "data_aquisicao) values (?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -74,7 +74,7 @@ public class InventarioDAO {
     }
 
     public String AlterarInventario(Inventario inventario) {
-        String sql = "update Inventario set id_usuario=?, id_item=?, origem=?, data_aquisicao=? "
+        String sql = "update INVENTARIO set id_usuario=?, id_item=?, origem=?, data_aquisicao=? "
                 + "where id_inventario=?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -96,7 +96,7 @@ public class InventarioDAO {
     }
 
     public String DeletarInventario(Inventario inventario) {
-        String sql = "delete from Inventario where id_inventario=?";
+        String sql = "delete from INVENTARIO where id_inventario=?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, inventario.getId());

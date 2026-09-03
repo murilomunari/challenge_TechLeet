@@ -102,25 +102,25 @@ public class Avatar implements Personalizavel {
 
     @Override
     public void equiparItem(Item item) {
-        if (item == null || item.getTipo() == null) {
-            throw new AvatarException("O item e seu tipo devem ser informados.");
+        if (item == null || item.getModelo() == null) {
+            throw new AvatarException("O item e seu modelo devem ser informados.");
         }
 
-        String tipo = item.getTipo();
-        if (tipo.equalsIgnoreCase("cabelo")) {
+        String modelo = item.getModelo();
+        if (modelo.equalsIgnoreCase("CABELO")) {
             this.idCabelo = item.getId();
-        } else if (tipo.equalsIgnoreCase("roupa_cima_int")) {
+        } else if (modelo.equalsIgnoreCase("ROUPA DE CIMA INTERNA")) {
             this.idRoupaCimaInt = item.getId();
-        } else if (tipo.equalsIgnoreCase("roupa_cima_ext")) {
+        } else if (modelo.equalsIgnoreCase("ROUPA DE CIMA EXTERNA")) {
             this.idRoupaCimaExt = item.getId();
-        } else if (tipo.equalsIgnoreCase("roupa_baixo")) {
+        } else if (modelo.equalsIgnoreCase("ROUPA DE BAIXO")) {
             this.idRoupaBaixo = item.getId();
-        } else if (tipo.equalsIgnoreCase("calcado")) {
+        } else if (modelo.equalsIgnoreCase("CALCADO")) {
             this.idCalcado = item.getId();
-        } else if (tipo.equalsIgnoreCase("acessorio")) {
+        } else if (modelo.equalsIgnoreCase("ACESSORIO")) {
             this.idAcessorio = item.getId();
         } else {
-            throw new AvatarException("Tipo de item invalido.");
+            throw new AvatarException("Modelo de item invalido.");
         }
     }
 

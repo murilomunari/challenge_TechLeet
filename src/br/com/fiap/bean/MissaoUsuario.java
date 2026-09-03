@@ -81,18 +81,24 @@ public class MissaoUsuario {
     }
 
     public void iniciar() {
-        if (this.status != null && !this.status.equalsIgnoreCase("pendente")) {
-            throw new MissaoUsuarioException("A missao ja foi iniciada ou finalizada.");
+        LocalDate dataAtual = LocalDate.now();
+        if (!"DISPONIVEL".equalsIgnoreCase(this.status)) {
+            throw new MissaoUsuarioException("A missao nao esta disponivel.");
         }
-        this.status = "andamento";
-        this.dataInicio = LocalDate.now();
+        if (this.dataInicio == null || this.dataFim == null) {
+            throw new MissaoUsuarioException("As datas de inicio e fim devem ser informadas.");
+        }
+        if (dataAtual.isBefore(this.dataInicio) || dataAtual.isAfter(this.dataFim)) {
+            this.status = "EXPIRADA";
+            throw new MissaoUsuarioException("A missao esta fora do periodo de realizacao.");
+        }
+        if (this.dataRealizacao != null) {
+            throw new MissaoUsuarioException("A missao ja foi concluida.");
+        }
     }
 
     public void concluir() {
-        if (!"andamento".equalsIgnoreCase(this.status)) {
-            throw new MissaoUsuarioException("Somente uma missao em andamento pode ser concluida.");
-        }
-        this.status = "concluida";
+        iniciar();
         this.dataRealizacao = LocalDate.now();
     }
 

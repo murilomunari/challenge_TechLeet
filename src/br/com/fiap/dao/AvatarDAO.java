@@ -20,7 +20,7 @@ public class AvatarDAO {
     }
 
     public ArrayList<Avatar> ListarAvatar() {
-        String sql = "select * from Avatares order by id_avatar";
+        String sql = "select * from AVATARES order by id_avatar";
         ArrayList<Avatar> avatares = new ArrayList<>();
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
@@ -50,7 +50,7 @@ public class AvatarDAO {
     }
 
     public String InserirAvatar(Avatar avatar) {
-        String sql = "insert into Avatares(id_avatar, nome, id_cabelo, id_roupa_cima_int, "
+        String sql = "insert into AVATARES(id_avatar, nome, id_cabelo, id_roupa_cima_int, "
                 + "id_roupa_cima_ext, id_roupa_baixo, id_calcado, id_acessorio, id_usuario) "
                 + "values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -76,7 +76,7 @@ public class AvatarDAO {
     }
 
     public String AlterarAvatar(Avatar avatar) {
-        String sql = "update Avatares set nome=?, id_cabelo=?, id_roupa_cima_int=?, "
+        String sql = "update AVATARES set nome=?, id_cabelo=?, id_roupa_cima_int=?, "
                 + "id_roupa_cima_ext=?, id_roupa_baixo=?, id_calcado=?, id_acessorio=?, "
                 + "id_usuario=? where id_avatar=?";
 
@@ -102,7 +102,7 @@ public class AvatarDAO {
     }
 
     public String DeletarAvatar(Avatar avatar) {
-        String sql = "delete from Avatares where id_avatar=?";
+        String sql = "delete from AVATARES where id_avatar=?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, avatar.getId());

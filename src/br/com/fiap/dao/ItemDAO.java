@@ -21,7 +21,7 @@ public class ItemDAO {
     }
 
     public ArrayList<Item> ListarItem() {
-        String sql = "select * from Itens order by id_item";
+        String sql = "select * from ITENS order by id_item";
         ArrayList<Item> listaItem = new ArrayList<>();
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
@@ -47,7 +47,7 @@ public class ItemDAO {
     }
 
     public String InserirItem(Item item) {
-        String sql = "insert into Itens(id_item, nome, modelo_item, valor_pontos, tipo) "
+        String sql = "insert into ITENS(id_item, nome, modelo_item, valor_pontos, tipo) "
                 + "values (?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -68,7 +68,7 @@ public class ItemDAO {
     }
 
     public String AlterarItem(Item item) {
-        String sql = "update Itens set nome=?, modelo_item=?, valor_pontos=?, tipo=? "
+        String sql = "update ITENS set nome=?, modelo_item=?, valor_pontos=?, tipo=? "
                 + "where id_item=?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -89,7 +89,7 @@ public class ItemDAO {
     }
 
     public String DeletarItem(Item item) {
-        String sql = "delete from Itens where id_item=?";
+        String sql = "delete from ITENS where id_item=?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, item.getId());

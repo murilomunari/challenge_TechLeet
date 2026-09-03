@@ -22,7 +22,7 @@ public class LogDAO {
     }
 
     public ArrayList<Log> ListarLog() {
-        String sql = "select * from Logs order by id_log";
+        String sql = "select * from LOGS order by id_log";
         ArrayList<Log> listaLog = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs != null) {
@@ -50,7 +50,7 @@ public class LogDAO {
     }
 
     public String InserirLog(Log log) {
-        String sql = "insert into Logs(id_log, assunto, descricao, data_registro, id_usuario, status) "
+        String sql = "insert into LOGS(id_log, assunto, descricao, data_registro, id_usuario, status) "
                 + "values (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, log.getId());
@@ -71,7 +71,7 @@ public class LogDAO {
     }
 
     public String AlterarLog(Log log) {
-        String sql = "update Logs set assunto=?, descricao=?, data_registro=?, id_usuario=?, "
+        String sql = "update LOGS set assunto=?, descricao=?, data_registro=?, id_usuario=?, "
                 + "status=? where id_log=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, log.getAssunto());
@@ -92,7 +92,7 @@ public class LogDAO {
     }
 
     public String DeletarLog(Log log) {
-        String sql = "delete from Logs where id_log=?";
+        String sql = "delete from LOGS where id_log=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, log.getId());
             if (ps.executeUpdate() > 0) {

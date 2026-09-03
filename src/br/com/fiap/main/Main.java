@@ -1,32 +1,28 @@
 package br.com.fiap.main;
 
 import br.com.fiap.dao.AvatarDAO;
-import br.com.fiap.dao.CodigoDAO;
 import br.com.fiap.dao.ConnectionFactory;
 import br.com.fiap.dao.InventarioDAO;
 import br.com.fiap.dao.ItemDAO;
 import br.com.fiap.dao.LogDAO;
 import br.com.fiap.dao.MissaoDAO;
 import br.com.fiap.dao.MissaoUsuarioDAO;
-import br.com.fiap.dao.ParceriaDAO;
 import br.com.fiap.dao.UsuarioDAO;
 import br.com.fiap.bean.Avatar;
 import br.com.fiap.bean.AvatarException;
-import br.com.fiap.bean.Codigo;
-import br.com.fiap.bean.CodigoException;
 import br.com.fiap.bean.Inventario;
 import br.com.fiap.bean.Item;
 import br.com.fiap.bean.Log;
 import br.com.fiap.bean.Missao;
 import br.com.fiap.bean.MissaoUsuario;
 import br.com.fiap.bean.MissaoUsuarioException;
-import br.com.fiap.bean.Parceria;
 import br.com.fiap.bean.Usuario;
 import br.com.fiap.bean.UsuarioException;
 
 import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 public class Main {
@@ -45,16 +41,15 @@ public class Main {
         InventarioDAO inventarioDAO = new InventarioDAO(con);
         MissaoDAO missaoDAO = new MissaoDAO(con);
         MissaoUsuarioDAO missaoUsuarioDAO = new MissaoUsuarioDAO(con);
-        ParceriaDAO parceriaDAO = new ParceriaDAO(con);
-        CodigoDAO codigoDAO = new CodigoDAO(con);
         LogDAO logDAO = new LogDAO(con);
 
         boolean continuar = true;
         int idUsuario = 0;
         int idAvatar = 0;
+        int idItem = 0;
         int idInventario = 0;
+        int idMissao = 0;
         int idMissaoUsuario = 0;
-        int idCodigo = 0;
         int idLog = 0;
         String auxiliar;
 
@@ -85,20 +80,29 @@ public class Main {
             }
         }
 
+        ArrayList<Item> itensCadastrados = itemDAO.ListarItem();
+        if (itensCadastrados != null) {
+            for (Item itemCadastrado : itensCadastrados) {
+                if (itemCadastrado.getId() > idItem) {
+                    idItem = itemCadastrado.getId();
+                }
+            }
+        }
+
+        ArrayList<Missao> missoesCadastradas = missaoDAO.ListaMissao();
+        if (missoesCadastradas != null) {
+            for (Missao missaoCadastrada : missoesCadastradas) {
+                if (missaoCadastrada.getId() > idMissao) {
+                    idMissao = missaoCadastrada.getId();
+                }
+            }
+        }
+
         ArrayList<MissaoUsuario> missoesUsuarioCadastradas = missaoUsuarioDAO.ListarMissaoUsuario();
         if (missoesUsuarioCadastradas != null) {
             for (MissaoUsuario missaoUsuarioCadastrada : missoesUsuarioCadastradas) {
                 if (missaoUsuarioCadastrada.getId() > idMissaoUsuario) {
                     idMissaoUsuario = missaoUsuarioCadastrada.getId();
-                }
-            }
-        }
-
-        ArrayList<Codigo> codigosCadastrados = codigoDAO.ListarCodigo();
-        if (codigosCadastrados != null) {
-            for (Codigo codigoCadastrado : codigosCadastrados) {
-                if (codigoCadastrado.getId() > idCodigo) {
-                    idCodigo = codigoCadastrado.getId();
                 }
             }
         }
@@ -128,10 +132,16 @@ public class Main {
                     int opcaoAcesso = Integer.parseInt(auxiliar);
 
                     if (opcaoAcesso == 1) {
+                        String nome = JOptionPane.showInputDialog("Digite seu nome:");
                         String email = JOptionPane.showInputDialog("Digite seu email:");
                         String senha = JOptionPane.showInputDialog("Digite sua senha:");
-                        auxiliar = JOptionPane.showInputDialog("Digite o ID do avatar associado ao usuário:");
-                        int avatarUsuario = Integer.parseInt(auxiliar);
+                        auxiliar = JOptionPane.showInputDialog(
+                                "Digite sua data de nascimento (AAAA-MM-DD):");
+                        LocalDate dataNascimento = LocalDate.parse(auxiliar);
+
+                        if (dataNascimento.isAfter(LocalDate.now())) {
+                            throw new UsuarioException("A data de nascimento nao pode estar no futuro.");
+                        }
                         boolean emailCadastrado = false;
 
                         usuariosCadastrados = usuarioDAO.listaTodos();
@@ -147,7 +157,7 @@ public class Main {
                             JOptionPane.showMessageDialog(null, "Esse email já está cadastrado!");
                         } else {
                             idUsuario = idUsuario + 1;
-                            usuario = new Usuario(idUsuario, email, senha, 0, avatarUsuario);
+                            usuario = new Usuario(idUsuario, nome, email, senha, dataNascimento, 0);
                             String resultado = usuarioDAO.InserirUsuario(usuario);
                             JOptionPane.showMessageDialog(null, resultado);
 
@@ -155,7 +165,7 @@ public class Main {
                                 idLog = idLog + 1;
                                 Log logCadastro = new Log(idLog, "CADASTRO",
                                         "Usuário cadastrado: " + email,
-                                        LocalDate.now(), usuario.getId(), "ok");
+                                        LocalDate.now(), usuario.getId(), "SUCESSO");
                                 logDAO.InserirLog(logCadastro);
                             } else {
                                 usuario = null;
@@ -180,7 +190,7 @@ public class Main {
                         } else {
                             idLog = idLog + 1;
                             Log logLogin = new Log(idLog, "SESSAO", "Login realizado",
-                                    LocalDate.now(), usuario.getId(), "ok");
+                                    LocalDate.now(), usuario.getId(), "SUCESSO");
                             logDAO.InserirLog(logLogin);
                             JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");
                         }
@@ -204,7 +214,9 @@ public class Main {
                                 + "4. Gastar Pontos\n"
                                 + "5. Ver Informações\n"
                                 + "6. Deletar Usuário\n"
-                                + "7. Sair";
+                                + "7. Criar Missão\n"
+                                + "8. Criar Item\n"
+                                + "9. Sair";
 
                         auxiliar = JOptionPane.showInputDialog(menuPrincipal);
                         int opcaoMenu = Integer.parseInt(auxiliar);
@@ -237,7 +249,7 @@ public class Main {
                                     idLog = idLog + 1;
                                     Log logAvatar = new Log(idLog, "AVATAR",
                                             "Avatar criado: " + nomeAvatar,
-                                            LocalDate.now(), usuario.getId(), "ok");
+                                            LocalDate.now(), usuario.getId(), "SUCESSO");
                                     logDAO.InserirLog(logAvatar);
                                 }
                             }
@@ -257,27 +269,42 @@ public class Main {
                                 JOptionPane.showMessageDialog(null, "Crie um avatar primeiro! (Opção 1)");
                             } else {
                                 ArrayList<Item> itens = itemDAO.ListarItem();
+                                inventariosCadastrados = inventarioDAO.ListarInventario();
                                 ArrayList<Item> itensEquipaveis = new ArrayList<>();
                                 String menuItens = "Escolha um item para equipar:\n\n";
 
                                 if (itens != null) {
                                     for (Item item : itens) {
-                                        String tipo = item.getTipo();
-                                        if (tipo != null && (tipo.equalsIgnoreCase("cabelo")
-                                                || tipo.equalsIgnoreCase("roupa_cima_int")
-                                                || tipo.equalsIgnoreCase("roupa_cima_ext")
-                                                || tipo.equalsIgnoreCase("roupa_baixo")
-                                                || tipo.equalsIgnoreCase("calcado")
-                                                || tipo.equalsIgnoreCase("acessorio"))) {
+                                        boolean possuiItem = false;
+                                        if (inventariosCadastrados != null) {
+                                            for (Inventario inventario : inventariosCadastrados) {
+                                                if (inventario.getIdUsuario() == usuario.getId()
+                                                        && inventario.getIdItem() == item.getId()) {
+                                                    possuiItem = true;
+                                                }
+                                            }
+                                        }
+
+                                        String modelo = item.getModelo();
+                                        boolean modeloEquipavel = modelo != null
+                                                && (modelo.equalsIgnoreCase("CABELO")
+                                                || modelo.equalsIgnoreCase("ROUPA DE CIMA INTERNA")
+                                                || modelo.equalsIgnoreCase("ROUPA DE CIMA EXTERNA")
+                                                || modelo.equalsIgnoreCase("ROUPA DE BAIXO")
+                                                || modelo.equalsIgnoreCase("CALCADO")
+                                                || modelo.equalsIgnoreCase("ACESSORIO"));
+
+                                        if (possuiItem && modeloEquipavel) {
                                             itensEquipaveis.add(item);
                                             menuItens = menuItens + itensEquipaveis.size() + ". "
-                                                    + item.getNome() + " - " + item.getTipo() + "\n";
+                                                    + item.getNome() + " - " + item.getModelo() + "\n";
                                         }
                                     }
                                 }
 
                                 if (itensEquipaveis.isEmpty()) {
-                                    JOptionPane.showMessageDialog(null, "Não há itens cadastrados no banco!");
+                                    JOptionPane.showMessageDialog(null,
+                                            "Você não possui itens disponíveis para equipar!");
                                 } else {
                                     auxiliar = JOptionPane.showInputDialog(menuItens);
                                     int opcaoItem = Integer.parseInt(auxiliar);
@@ -288,30 +315,10 @@ public class Main {
                                         String resultado = avatarDAO.AlterarAvatar(avatar);
 
                                         if (resultado.contains("sucesso")) {
-                                            boolean possuiItem = false;
-                                            inventariosCadastrados = inventarioDAO.ListarInventario();
-
-                                            if (inventariosCadastrados != null) {
-                                                for (Inventario inventario : inventariosCadastrados) {
-                                                    if (inventario.getIdUsuario() == usuario.getId()
-                                                            && inventario.getIdItem() == itemEscolhido.getId()) {
-                                                        possuiItem = true;
-                                                    }
-                                                }
-                                            }
-
-                                            if (!possuiItem) {
-                                                idInventario = idInventario + 1;
-                                                Inventario inventario = new Inventario(idInventario,
-                                                        usuario.getId(), itemEscolhido.getId(),
-                                                        "personalizacao", LocalDate.now());
-                                                inventarioDAO.InserirInventario(inventario);
-                                            }
-
                                             idLog = idLog + 1;
                                             Log logItem = new Log(idLog, "EQUIPAR",
                                                     "Item equipado: " + itemEscolhido.getNome(),
-                                                    LocalDate.now(), usuario.getId(), "ok");
+                                                    LocalDate.now(), usuario.getId(), "SUCESSO");
                                             logDAO.InserirLog(logItem);
                                             JOptionPane.showMessageDialog(null, "Item equipado com sucesso!");
                                         } else {
@@ -347,7 +354,7 @@ public class Main {
                                         for (MissaoUsuario registro : missoesUsuarioCadastradas) {
                                             if (registro.getIdUsuario() == usuario.getId()
                                                     && registro.getIdMissao() == missao.getId()
-                                                    && registro.getStatus().equalsIgnoreCase("concluida")) {
+                                                    && registro.getDataRealizacao() != null) {
                                                 concluida = true;
                                             }
                                         }
@@ -357,12 +364,20 @@ public class Main {
                                         JOptionPane.showMessageDialog(null, "Você já concluiu essa missão!");
                                     } else {
                                         idMissaoUsuario = idMissaoUsuario + 1;
+                                        LocalDate dataInicio = LocalDate.now();
+                                        LocalDate dataFim;
+                                        if ("DIARIA".equalsIgnoreCase(missao.getTipo())) {
+                                            dataFim = dataInicio;
+                                        } else if ("SEMANAL".equalsIgnoreCase(missao.getTipo())) {
+                                            dataFim = dataInicio.plusDays(7);
+                                        } else {
+                                            dataFim = dataInicio.plusDays(30);
+                                        }
+
                                         MissaoUsuario registro = new MissaoUsuario(idMissaoUsuario,
-                                                usuario.getId(), missao.getId(), "pendente",
-                                                null, null, null);
-                                        registro.iniciar();
+                                                usuario.getId(), missao.getId(), "DISPONIVEL",
+                                                null, dataInicio, dataFim);
                                         registro.concluir();
-                                        registro.setDataFim(LocalDate.now());
 
                                         String resultado = missaoUsuarioDAO.InserirMissaoUsuario(registro);
                                         if (resultado.contains("sucesso")) {
@@ -373,7 +388,7 @@ public class Main {
                                             Log logMissao = new Log(idLog, "MISSAO",
                                                     "Missão concluída: " + missao.getTitulo()
                                                             + " (+" + missao.getPontos() + " pts)",
-                                                    LocalDate.now(), usuario.getId(), "ok");
+                                                    LocalDate.now(), usuario.getId(), "SUCESSO");
                                             logDAO.InserirLog(logMissao);
 
                                             JOptionPane.showMessageDialog(null,
@@ -427,64 +442,26 @@ public class Main {
                                     if (usuario.getPontos() < itemComprado.getValorPontos()) {
                                         JOptionPane.showMessageDialog(null, "Você não tem pontos suficientes!");
                                     } else {
-                                        ArrayList<Parceria> parcerias = parceriaDAO.ListarParceria();
-                                        ArrayList<Parceria> parceriasAtivas = new ArrayList<>();
-                                        String menuParcerias = "Escolha uma parceria:\n\n";
+                                        usuario.gastarPontos(itemComprado.getValorPontos());
+                                        usuarioDAO.AlterarUsuario(usuario);
 
-                                        if (parcerias != null) {
-                                            for (Parceria parceria : parcerias) {
-                                                if (parceria.getStatus().equalsIgnoreCase("ativa")) {
-                                                    parceriasAtivas.add(parceria);
-                                                    menuParcerias = menuParcerias + parceriasAtivas.size()
-                                                            + ". " + parceria.getNome() + "\n";
-                                                }
-                                            }
-                                        }
+                                        idInventario = idInventario + 1;
+                                        Inventario inventario = new Inventario(idInventario,
+                                                usuario.getId(), itemComprado.getId(),
+                                                "COMPRA", LocalDate.now());
+                                        inventarioDAO.InserirInventario(inventario);
 
-                                        if (parceriasAtivas.isEmpty()) {
-                                            JOptionPane.showMessageDialog(null, "Não há parcerias ativas!");
-                                        } else {
-                                            auxiliar = JOptionPane.showInputDialog(menuParcerias);
-                                            int opcaoParceria = Integer.parseInt(auxiliar);
+                                        idLog = idLog + 1;
+                                        Log logCompra = new Log(idLog, "COMPRA",
+                                                "Item comprado: " + itemComprado.getNome()
+                                                        + " (-" + itemComprado.getValorPontos()
+                                                        + " pts)",
+                                                LocalDate.now(), usuario.getId(), "SUCESSO");
+                                        logDAO.InserirLog(logCompra);
 
-                                            if (opcaoParceria >= 1
-                                                    && opcaoParceria <= parceriasAtivas.size()) {
-                                                Parceria parceria = parceriasAtivas.get(opcaoParceria - 1);
-                                                idCodigo = idCodigo + 1;
-                                                Codigo codigo = new Codigo(idCodigo,
-                                                        "COD" + idCodigo + "-" + usuario.getId(),
-                                                        "ativo", LocalDate.now().plusDays(30), null,
-                                                        itemComprado.getId(), parceria.getId());
-                                                codigo.resgatar();
-
-                                                usuario.gastarPontos(itemComprado.getValorPontos());
-                                                usuarioDAO.AlterarUsuario(usuario);
-                                                codigoDAO.InserirCodigo(codigo);
-
-                                                idInventario = idInventario + 1;
-                                                Inventario inventario = new Inventario(idInventario,
-                                                        usuario.getId(), itemComprado.getId(),
-                                                        "compra", LocalDate.now());
-                                                inventarioDAO.InserirInventario(inventario);
-
-                                                idLog = idLog + 1;
-                                                Log logCompra = new Log(idLog, "COMPRA",
-                                                        "Item comprado: " + itemComprado.getNome()
-                                                                + " (-" + itemComprado.getValorPontos()
-                                                                + " pts)",
-                                                        LocalDate.now(), usuario.getId(), "ok");
-                                                logDAO.InserirLog(logCompra);
-
-                                                JOptionPane.showMessageDialog(null,
-                                                        "Item comprado com sucesso!\n\nCódigo: "
-                                                                + codigo.getCodigoResgate()
-                                                                + "\nParceria: " + parceria.getNome()
-                                                                + "\nSaldo: " + usuario.getPontos()
-                                                                + " pontos");
-                                            } else {
-                                                JOptionPane.showMessageDialog(null, "Opção inválida!");
-                                            }
-                                        }
+                                        JOptionPane.showMessageDialog(null,
+                                                "Item comprado com sucesso!\n\nSaldo: "
+                                                        + usuario.getPontos() + " pontos");
                                     }
                                 } else {
                                     JOptionPane.showMessageDialog(null, "Opção inválida!");
@@ -507,7 +484,9 @@ public class Main {
 
                             String info = "=== SUAS INFORMAÇÕES ===\n\n";
                             info = info + "ID: " + usuario.getId() + "\n";
+                            info = info + "NOME: " + usuario.getNome() + "\n";
                             info = info + "EMAIL: " + usuario.getEmail() + "\n";
+                            info = info + "DATA DE NASCIMENTO: " + usuario.getDataNascimento() + "\n";
                             info = info + "PONTOS: " + usuario.getPontos() + "\n\n";
 
                             if (avatar == null) {
@@ -544,7 +523,7 @@ public class Main {
                             if (missoesUsuarioCadastradas != null) {
                                 for (MissaoUsuario registro : missoesUsuarioCadastradas) {
                                     if (registro.getIdUsuario() == usuario.getId()
-                                            && registro.getStatus().equalsIgnoreCase("concluida")) {
+                                            && registro.getDataRealizacao() != null) {
                                         missoesConcluidas = missoesConcluidas + 1;
                                     }
                                 }
@@ -570,6 +549,120 @@ public class Main {
                                 JOptionPane.showMessageDialog(null, "Opção inválida!");
                             }
                         } else if (opcaoMenu == 7) {
+                            String titulo = JOptionPane.showInputDialog("Digite o título da missão:");
+                            String descricao = JOptionPane.showInputDialog("Digite a descrição da missão:");
+                            auxiliar = JOptionPane.showInputDialog("Digite a quantidade de pontos da missão:");
+                            int pontosMissao = Integer.parseInt(auxiliar);
+
+                            String menuTipoMissao = "Escolha o tipo da missão:\n\n"
+                                    + "1. Diária\n"
+                                    + "2. Semanal\n"
+                                    + "3. Especial";
+                            auxiliar = JOptionPane.showInputDialog(menuTipoMissao);
+                            int opcaoTipoMissao = Integer.parseInt(auxiliar);
+                            String tipoMissao = null;
+
+                            if (opcaoTipoMissao == 1) {
+                                tipoMissao = "DIARIA";
+                            } else if (opcaoTipoMissao == 2) {
+                                tipoMissao = "SEMANAL";
+                            } else if (opcaoTipoMissao == 3) {
+                                tipoMissao = "ESPECIAL";
+                            }
+
+                            if (titulo == null || titulo.trim().isEmpty()
+                                    || descricao == null || descricao.trim().isEmpty()) {
+                                JOptionPane.showMessageDialog(null,
+                                        "O título e a descrição devem ser informados!");
+                            } else if (pontosMissao < 0) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Os pontos da missão não podem ser negativos!");
+                            } else if (tipoMissao == null) {
+                                JOptionPane.showMessageDialog(null, "Tipo de missão inválido!");
+                            } else {
+                                idMissao = idMissao + 1;
+                                Missao novaMissao = new Missao(idMissao, titulo, descricao,
+                                        pontosMissao, tipoMissao);
+                                String resultado = missaoDAO.InserirMissao(novaMissao);
+                                JOptionPane.showMessageDialog(null, resultado);
+
+                                if (resultado.contains("sucesso")) {
+                                    idLog = idLog + 1;
+                                    Log logMissaoCriada = new Log(idLog, "CRIAR MISSAO",
+                                            "Missão criada: " + titulo,
+                                            LocalDate.now(), usuario.getId(), "SUCESSO");
+                                    logDAO.InserirLog(logMissaoCriada);
+                                }
+                            }
+                        } else if (opcaoMenu == 8) {
+                            String nomeItem = JOptionPane.showInputDialog("Digite o nome do item:");
+
+                            String menuModelo = "Escolha o modelo do item:\n\n"
+                                    + "1. Cabelo\n"
+                                    + "2. Roupa de cima interna\n"
+                                    + "3. Roupa de cima externa\n"
+                                    + "4. Roupa de baixo\n"
+                                    + "5. Calçado\n"
+                                    + "6. Acessório";
+                            auxiliar = JOptionPane.showInputDialog(menuModelo);
+                            int opcaoModelo = Integer.parseInt(auxiliar);
+                            String modeloItem = null;
+
+                            if (opcaoModelo == 1) {
+                                modeloItem = "CABELO";
+                            } else if (opcaoModelo == 2) {
+                                modeloItem = "ROUPA DE CIMA INTERNA";
+                            } else if (opcaoModelo == 3) {
+                                modeloItem = "ROUPA DE CIMA EXTERNA";
+                            } else if (opcaoModelo == 4) {
+                                modeloItem = "ROUPA DE BAIXO";
+                            } else if (opcaoModelo == 5) {
+                                modeloItem = "CALCADO";
+                            } else if (opcaoModelo == 6) {
+                                modeloItem = "ACESSORIO";
+                            }
+
+                            auxiliar = JOptionPane.showInputDialog("Digite o valor do item em pontos:");
+                            int valorPontos = Integer.parseInt(auxiliar);
+
+                            String menuTipoItem = "Escolha o tipo do item:\n\n"
+                                    + "1. Normal\n"
+                                    + "2. Exclusivo";
+                            auxiliar = JOptionPane.showInputDialog(menuTipoItem);
+                            int opcaoTipoItem = Integer.parseInt(auxiliar);
+                            String tipoItem = null;
+
+                            if (opcaoTipoItem == 1) {
+                                tipoItem = "NORMAL";
+                            } else if (opcaoTipoItem == 2) {
+                                tipoItem = "EXCLUSIVO";
+                            }
+
+                            if (nomeItem == null || nomeItem.trim().isEmpty()) {
+                                JOptionPane.showMessageDialog(null, "O nome do item deve ser informado!");
+                            } else if (modeloItem == null) {
+                                JOptionPane.showMessageDialog(null, "Modelo de item inválido!");
+                            } else if (valorPontos < 0) {
+                                JOptionPane.showMessageDialog(null,
+                                        "O valor do item não pode ser negativo!");
+                            } else if (tipoItem == null) {
+                                JOptionPane.showMessageDialog(null, "Tipo de item inválido!");
+                            } else {
+                                idItem = idItem + 1;
+                                Item novoItem = new Item(idItem, nomeItem, modeloItem,
+                                        valorPontos, tipoItem);
+                                String resultado = itemDAO.InserirItem(novoItem);
+                                JOptionPane.showMessageDialog(null, resultado);
+
+                                if (resultado.contains("sucesso")) {
+                                    idLog = idLog + 1;
+                                    Log logItemCriado = new Log(idLog, "CRIAR ITEM",
+                                            "Item criado: " + nomeItem,
+                                            LocalDate.now(), usuario.getId(), "SUCESSO");
+                                    logDAO.InserirLog(logItemCriado);
+                                }
+                            }
+                        } else if (opcaoMenu == 9) {
                             String menuSaida = "O que você deseja fazer?\n\n"
                                     + "1. Encerrar programa\n"
                                     + "2. Entrar com outro usuário";
@@ -579,7 +672,7 @@ public class Main {
                             if (opcaoSaida == 1) {
                                 idLog = idLog + 1;
                                 Log logFim = new Log(idLog, "SESSAO", "Sessão encerrada",
-                                        LocalDate.now(), usuario.getId(), "ok");
+                                        LocalDate.now(), usuario.getId(), "SUCESSO");
                                 logDAO.InserirLog(logFim);
                                 continuarMenu = false;
                                 continuar = false;
@@ -595,7 +688,10 @@ public class Main {
                 }
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Erro: Digite um número válido!");
-            } catch (AvatarException | CodigoException | MissaoUsuarioException | UsuarioException e) {
+            } catch (DateTimeParseException e) {
+                JOptionPane.showMessageDialog(null,
+                        "Erro: Digite a data no formato AAAA-MM-DD!");
+            } catch (AvatarException | MissaoUsuarioException | UsuarioException e) {
                 JOptionPane.showMessageDialog(null, "Erro de validação: " + e.getMessage());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());

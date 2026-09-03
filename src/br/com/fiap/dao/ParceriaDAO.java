@@ -22,7 +22,7 @@ public class ParceriaDAO {
     }
 
     public ArrayList<Parceria> ListarParceria() {
-        String sql = "select * from Parcerias order by id_parceria";
+        String sql = "select * from PARCERIAS order by id_parceria";
         ArrayList<Parceria> listaParceria = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs != null) {
@@ -53,7 +53,7 @@ public class ParceriaDAO {
     }
 
     public String InserirParceria(Parceria parceria) {
-        String sql = "insert into Parcerias(id_parceria, tipo, nome, status, custo_mensal, "
+        String sql = "insert into PARCERIAS(id_parceria, tipo, nome, status, custo_mensal, "
                 + "data_inicio, data_fim) values (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, parceria.getId());
@@ -76,7 +76,7 @@ public class ParceriaDAO {
     }
 
     public String AlterarParceria(Parceria parceria) {
-        String sql = "update Parcerias set tipo=?, nome=?, status=?, custo_mensal=?, "
+        String sql = "update PARCERIAS set tipo=?, nome=?, status=?, custo_mensal=?, "
                 + "data_inicio=?, data_fim=? where id_parceria=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, parceria.getTipo());
@@ -99,7 +99,7 @@ public class ParceriaDAO {
     }
 
     public String DeletarParceria(Parceria parceria) {
-        String sql = "delete from Parcerias where id_parceria=?";
+        String sql = "delete from PARCERIAS where id_parceria=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, parceria.getId());
             if (ps.executeUpdate() > 0) {
