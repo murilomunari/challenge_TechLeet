@@ -1,4 +1,4 @@
-package br.com.fiap.dto;
+package br.com.fiap.bean;
 
 import java.time.LocalDate;
 

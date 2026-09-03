@@ -1,4 +1,4 @@
-package br.com.fiap.dto;
+package br.com.fiap.bean;
 
 public class Usuario {
     private int id;
@@ -20,14 +20,14 @@ public class Usuario {
 
     public void adicionarPontos(int quantidade) {
         if (quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade de pontos deve ser positiva.");
+            throw new UsuarioException("A quantidade de pontos deve ser positiva.");
         }
         this.pontos += quantidade;
     }
 
     public boolean gastarPontos(int quantidade) {
         if (quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade de pontos deve ser positiva.");
+            throw new UsuarioException("A quantidade de pontos deve ser positiva.");
         }
         if (this.pontos < quantidade) {
             return false;

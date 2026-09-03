@@ -1,4 +1,4 @@
-package br.com.fiap.dto;
+package br.com.fiap.bean;
 
 public class Avatar implements Personalizavel {
     private int id;
@@ -103,7 +103,7 @@ public class Avatar implements Personalizavel {
     @Override
     public void equiparItem(Item item) {
         if (item == null || item.getTipo() == null) {
-            throw new IllegalArgumentException("O item e seu tipo devem ser informados.");
+            throw new AvatarException("O item e seu tipo devem ser informados.");
         }
 
         String tipo = item.getTipo();
@@ -120,7 +120,7 @@ public class Avatar implements Personalizavel {
         } else if (tipo.equalsIgnoreCase("acessorio")) {
             this.idAcessorio = item.getId();
         } else {
-            throw new IllegalArgumentException("Tipo de item invalido.");
+            throw new AvatarException("Tipo de item invalido.");
         }
     }
 
@@ -139,7 +139,7 @@ public class Avatar implements Personalizavel {
         } else if (posicao == 6) {
             this.idAcessorio = 0;
         } else {
-            throw new IllegalArgumentException("A posicao deve estar entre 1 e 6.");
+            throw new AvatarException("A posicao deve estar entre 1 e 6.");
         }
     }
 }

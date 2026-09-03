@@ -1,4 +1,4 @@
-package br.com.fiap.dto;
+package br.com.fiap.bean;
 import java.time.LocalDate;
 
 public class MissaoUsuario {
@@ -82,7 +82,7 @@ public class MissaoUsuario {
 
     public void iniciar() {
         if (this.status != null && !this.status.equalsIgnoreCase("pendente")) {
-            throw new IllegalStateException("A missao ja foi iniciada ou finalizada.");
+            throw new MissaoUsuarioException("A missao ja foi iniciada ou finalizada.");
         }
         this.status = "andamento";
         this.dataInicio = LocalDate.now();
@@ -90,7 +90,7 @@ public class MissaoUsuario {
 
     public void concluir() {
         if (!"andamento".equalsIgnoreCase(this.status)) {
-            throw new IllegalStateException("Somente uma missao em andamento pode ser concluida.");
+            throw new MissaoUsuarioException("Somente uma missao em andamento pode ser concluida.");
         }
         this.status = "concluida";
         this.dataRealizacao = LocalDate.now();

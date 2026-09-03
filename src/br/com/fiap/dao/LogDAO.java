@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.dto.Log;
+import br.com.fiap.bean.Log;
 
 import java.sql.Connection;
 import java.sql.Date;

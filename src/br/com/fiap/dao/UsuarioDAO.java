@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.dto.Usuario;
+import br.com.fiap.bean.Usuario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

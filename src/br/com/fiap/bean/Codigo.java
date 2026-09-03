@@ -1,4 +1,4 @@
-package br.com.fiap.dto;
+package br.com.fiap.bean;
 
 import java.time.LocalDate;
 
@@ -88,7 +88,7 @@ public class Codigo {
 
     public boolean validarResgate(LocalDate dataAtual) {
         if (dataAtual == null) {
-            throw new IllegalArgumentException("A data atual deve ser informada.");
+            throw new CodigoException("A data atual deve ser informada.");
         }
         return "ativo".equalsIgnoreCase(this.status)
                 && this.dataResgate == null

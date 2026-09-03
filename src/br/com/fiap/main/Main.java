@@ -10,15 +10,19 @@ import br.com.fiap.dao.MissaoDAO;
 import br.com.fiap.dao.MissaoUsuarioDAO;
 import br.com.fiap.dao.ParceriaDAO;
 import br.com.fiap.dao.UsuarioDAO;
-import br.com.fiap.dto.Avatar;
-import br.com.fiap.dto.Codigo;
-import br.com.fiap.dto.Inventario;
-import br.com.fiap.dto.Item;
-import br.com.fiap.dto.Log;
-import br.com.fiap.dto.Missao;
-import br.com.fiap.dto.MissaoUsuario;
-import br.com.fiap.dto.Parceria;
-import br.com.fiap.dto.Usuario;
+import br.com.fiap.bean.Avatar;
+import br.com.fiap.bean.AvatarException;
+import br.com.fiap.bean.Codigo;
+import br.com.fiap.bean.CodigoException;
+import br.com.fiap.bean.Inventario;
+import br.com.fiap.bean.Item;
+import br.com.fiap.bean.Log;
+import br.com.fiap.bean.Missao;
+import br.com.fiap.bean.MissaoUsuario;
+import br.com.fiap.bean.MissaoUsuarioException;
+import br.com.fiap.bean.Parceria;
+import br.com.fiap.bean.Usuario;
+import br.com.fiap.bean.UsuarioException;
 
 import javax.swing.JOptionPane;
 import java.sql.Connection;
@@ -591,6 +595,8 @@ public class Main {
                 }
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Erro: Digite um número válido!");
+            } catch (AvatarException | CodigoException | MissaoUsuarioException | UsuarioException e) {
+                JOptionPane.showMessageDialog(null, "Erro de validação: " + e.getMessage());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
             }
