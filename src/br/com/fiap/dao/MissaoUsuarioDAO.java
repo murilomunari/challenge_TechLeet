@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.bean.MissaoUsuario;
+import br.com.fiap.dto.MissaoUsuario;
 
 import java.sql.Connection;
 import java.sql.Date;

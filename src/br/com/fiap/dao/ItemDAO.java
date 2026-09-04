@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.bean.Item;
+import br.com.fiap.dto.Item;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

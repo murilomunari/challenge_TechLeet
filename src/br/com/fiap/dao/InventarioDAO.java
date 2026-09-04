@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.bean.Inventario;
+import br.com.fiap.dto.Inventario;
 
 import java.sql.Connection;
 import java.sql.Date;

@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.bean.Parceria;
+import br.com.fiap.dto.Parceria;
 
 import java.sql.Connection;
 import java.sql.Date;

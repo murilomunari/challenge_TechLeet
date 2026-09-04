@@ -1,4 +1,4 @@
-package br.com.fiap.bean;
+package br.com.fiap.dto;
 
 public interface Personalizavel {
     public void equiparItem(Item item);

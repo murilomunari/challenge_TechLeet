@@ -1,4 +1,4 @@
-package br.com.fiap.bean;
+package br.com.fiap.dto;
 
 public class Avatar implements Personalizavel {
     private int id;

@@ -1,4 +1,4 @@
-package br.com.fiap.bean;
+package br.com.fiap.dto;
 
 public class AvatarException extends RuntimeException {
     private static final long serialVersionUID = 1L;

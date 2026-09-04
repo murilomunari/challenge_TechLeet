@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.bean.Avatar;
+import br.com.fiap.dto.Avatar;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
