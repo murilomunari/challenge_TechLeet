@@ -1,25 +1,30 @@
 package br.com.fiap.main;
 
 import br.com.fiap.dao.AvatarDAO;
+import br.com.fiap.dao.CodigoDAO;
 import br.com.fiap.dao.ConnectionFactory;
 import br.com.fiap.dao.InventarioDAO;
 import br.com.fiap.dao.ItemDAO;
 import br.com.fiap.dao.LogDAO;
 import br.com.fiap.dao.MissaoDAO;
 import br.com.fiap.dao.MissaoUsuarioDAO;
+import br.com.fiap.dao.ParceriaDAO;
 import br.com.fiap.dao.UsuarioDAO;
 import br.com.fiap.dto.Avatar;
 import br.com.fiap.dto.AvatarException;
+import br.com.fiap.dto.Codigo;
 import br.com.fiap.dto.Inventario;
 import br.com.fiap.dto.Item;
 import br.com.fiap.dto.Log;
 import br.com.fiap.dto.Missao;
 import br.com.fiap.dto.MissaoUsuario;
 import br.com.fiap.dto.MissaoUsuarioException;
+import br.com.fiap.dto.Parceria;
 import br.com.fiap.dto.Usuario;
 import br.com.fiap.dto.UsuarioException;
 
 import javax.swing.JOptionPane;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -38,6 +43,8 @@ public class Main {
     private final MissaoDAO missaoDAO;
     private final MissaoUsuarioDAO missaoUsuarioDAO;
     private final LogDAO logDAO;
+    private final ParceriaDAO parceriaDAO;
+    private final CodigoDAO codigoDAO;
 
     private final HashSet<String> modelosEquipaveis = new HashSet<>();
     private final HashMap<Integer, String> tiposMissao = new HashMap<>();
@@ -52,6 +59,8 @@ public class Main {
     private int idMissao;
     private int idMissaoUsuario;
     private int idLog;
+    private int idParceria;
+    private int idCodigo;
 
     public Main(Connection con) {
         usuarioDAO = new UsuarioDAO(con);
@@ -61,9 +70,12 @@ public class Main {
         missaoDAO = new MissaoDAO(con);
         missaoUsuarioDAO = new MissaoUsuarioDAO(con);
         logDAO = new LogDAO(con);
+        parceriaDAO = new ParceriaDAO(con);
+        codigoDAO = new CodigoDAO(con);
 
         configurarColecoes();
         carregarUltimosIds();
+        cadastrarDadosIniciais();
     }
 
     public static void main(String[] args) {
@@ -113,6 +125,128 @@ public class Main {
         idMissao = maiorId(missaoDAO.ListaMissao(), Missao::getId);
         idMissaoUsuario = maiorId(missaoUsuarioDAO.ListarMissaoUsuario(), MissaoUsuario::getId);
         idLog = maiorId(logDAO.ListarLog(), Log::getId);
+        idParceria = maiorId(parceriaDAO.ListarParceria(), Parceria::getId);
+        idCodigo = maiorId(codigoDAO.ListarCodigo(), Codigo::getId);
+    }
+
+    private void cadastrarDadosIniciais() {
+        ArrayList<Item> itens = itemDAO.ListarItem();
+        ArrayList<Parceria> parcerias = parceriaDAO.ListarParceria();
+        ArrayList<Codigo> codigos = codigoDAO.ListarCodigo();
+
+        if (itens == null || parcerias == null || codigos == null) {
+            System.out.println("Não foi possível verificar os dados iniciais.");
+            return;
+        }
+
+        Item itemCodigo = null;
+        for (Item item : itens) {
+            if ("Boné TechLeet".equalsIgnoreCase(item.getNome())) {
+                itemCodigo = item;
+            }
+        }
+
+        if (itemCodigo == null) {
+            itemCodigo = new Item(++idItem, "Boné TechLeet",
+                    "ACESSORIO", 0, "EXCLUSIVO");
+            String resultadoItem = itemDAO.InserirItem(itemCodigo);
+            System.out.println(resultadoItem);
+
+            if (!resultadoItem.contains("sucesso")) {
+                return;
+            }
+        } else {
+            itemCodigo.setModelo("ACESSORIO");
+            itemCodigo.setValorPontos(0);
+            itemCodigo.setTipo("EXCLUSIVO");
+            System.out.println(itemDAO.AlterarItem(itemCodigo));
+        }
+
+        Parceria parceriaCodigo = null;
+        for (Parceria parceria : parcerias) {
+            if ("TechStore".equalsIgnoreCase(parceria.getNome())) {
+                parceriaCodigo = parceria;
+            }
+        }
+
+        if (parceriaCodigo == null) {
+            parceriaCodigo = new Parceria(++idParceria, "TechStore",
+                    "MARCA", "ATIVA", new BigDecimal("1000.00"),
+                    LocalDate.now(), LocalDate.now().plusYears(1));
+            String resultadoParceria = parceriaDAO.InserirParceria(parceriaCodigo);
+            System.out.println(resultadoParceria);
+
+            if (!resultadoParceria.contains("sucesso")) {
+                return;
+            }
+        } else {
+            parceriaCodigo.setTipo("MARCA");
+            parceriaCodigo.setStatus("ATIVA");
+            parceriaCodigo.setCustoMensal(new BigDecimal("1000.00"));
+            parceriaCodigo.setDataFim(LocalDate.now().plusYears(1));
+            System.out.println(parceriaDAO.AlterarParceria(parceriaCodigo));
+        }
+
+        Codigo codigoInicial = null;
+        for (Codigo codigo : codigos) {
+            if ("TECHLEET2026".equalsIgnoreCase(codigo.getCodigoResgate())) {
+                codigoInicial = codigo;
+            }
+        }
+
+        if (codigoInicial != null
+                && codigoInicial.getDataValidade() != null
+                && LocalDate.now().isAfter(codigoInicial.getDataValidade())
+                && "DISPONIVEL".equalsIgnoreCase(codigoInicial.getStatus())) {
+            System.out.println(codigoDAO.DeletarCodigo(codigoInicial));
+            codigoInicial = null;
+        }
+
+        if (codigoInicial == null) {
+            codigoInicial = new Codigo(++idCodigo, "TECHLEET2026",
+                    "DISPONIVEL", LocalDate.now().plusYears(1), null,
+                    itemCodigo.getId(), parceriaCodigo.getId());
+            System.out.println(codigoDAO.InserirCodigo(codigoInicial));
+        } else {
+            codigoInicial.setIdItem(itemCodigo.getId());
+            codigoInicial.setIdParceria(parceriaCodigo.getId());
+            System.out.println(codigoDAO.AlterarCodigo(codigoInicial));
+        }
+
+        System.out.println("\n=== DADOS INICIAIS CADASTRADOS ===");
+
+        itens = itemDAO.ListarItem();
+        if (itens != null) {
+            for (Item item : itens) {
+                if ("Boné TechLeet".equalsIgnoreCase(item.getNome())) {
+                    System.out.println("\nItem: " + item.getNome());
+                    System.out.println("Modelo: " + item.getModelo());
+                    System.out.println("Tipo: " + item.getTipo());
+                }
+            }
+        }
+
+        parcerias = parceriaDAO.ListarParceria();
+        if (parcerias != null) {
+            for (Parceria parceria : parcerias) {
+                if ("TechStore".equalsIgnoreCase(parceria.getNome())) {
+                    System.out.println("\nParceria: " + parceria.getNome());
+                    System.out.println("Tipo: " + parceria.getTipo());
+                    System.out.println("Status: " + parceria.getStatus());
+                }
+            }
+        }
+
+        codigos = codigoDAO.ListarCodigo();
+        if (codigos != null) {
+            for (Codigo codigo : codigos) {
+                if ("TECHLEET2026".equalsIgnoreCase(codigo.getCodigoResgate())) {
+                    System.out.println("\nCódigo: " + codigo.getCodigoResgate());
+                    System.out.println("Status: " + codigo.getStatus());
+                    System.out.println("Validade: " + codigo.getDataValidade());
+                }
+            }
+        }
     }
 
     private static <T> int maiorId(ArrayList<T> registros, ToIntFunction<T> obterId) {
