@@ -71,7 +71,7 @@ public class ParceriaDAO {
                 return "Erro ao inserir parceria!";
             }
         } catch (SQLException e) {
-            return "Erro ao inserir parceria!";
+            return "Erro ao inserir parceria: " + e.getMessage();
         }
     }
 
@@ -94,7 +94,7 @@ public class ParceriaDAO {
                 return "Erro ao alterar parceria!";
             }
         } catch (SQLException e) {
-            return "Erro ao alterar parceria!";
+            return "Erro ao alterar parceria: " + e.getMessage();
         }
     }
 
@@ -108,7 +108,7 @@ public class ParceriaDAO {
                 return "Erro ao deletar parceria!";
             }
         } catch (SQLException e) {
-            return "Erro ao deletar parceria!";
+            return "Erro ao deletar parceria: " + e.getMessage();
         }
     }
 }

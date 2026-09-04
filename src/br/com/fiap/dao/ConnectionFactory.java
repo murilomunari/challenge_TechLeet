@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionFactory {
-    public static Connection getConnection(){
+    public static Connection getConnection() {
         Connection con = null;
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -23,10 +23,14 @@ public class ConnectionFactory {
         }
         return con;
     }
-    public static void closeConnection(Connection con){
+    public static void closeConnection(Connection con) {
+        if (con == null) {
+            return;
+        }
+
         try {
             con.close();
-            System.out.println("Conectado com sucesso!");
+            System.out.println("Conexão encerrada com sucesso!");
         } catch (SQLException e) {
             System.out.println("Erro: \n" + e.getMessage());
         } catch (Exception e) {

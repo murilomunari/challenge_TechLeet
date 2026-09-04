@@ -71,7 +71,7 @@ public class CodigoDAO {
                 return "Erro ao inserir codigo!";
             }
         } catch (SQLException e) {
-            return "Erro ao inserir codigo!";
+            return "Erro ao inserir codigo: " + e.getMessage();
         }
     }
 
@@ -94,7 +94,7 @@ public class CodigoDAO {
                 return "Erro ao alterar codigo!";
             }
         } catch (SQLException e) {
-            return "Erro ao alterar codigo!";
+            return "Erro ao alterar codigo: " + e.getMessage();
         }
     }
 
@@ -108,7 +108,7 @@ public class CodigoDAO {
                 return "Erro ao deletar codigo!";
             }
         } catch (SQLException e) {
-            return "Erro ao deletar codigo!";
+            return "Erro ao deletar codigo: " + e.getMessage();
         }
     }
 }

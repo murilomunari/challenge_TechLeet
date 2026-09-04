@@ -69,7 +69,7 @@ public class InventarioDAO {
                 return "Erro ao inserir inventario!";
             }
         } catch (SQLException e) {
-            return "Erro ao inserir inventario!";
+            return "Erro ao inserir inventario: " + e.getMessage();
         }
     }
 
@@ -91,7 +91,7 @@ public class InventarioDAO {
                 return "Erro ao alterar inventario!";
             }
         } catch (SQLException e) {
-            return "Erro ao alterar inventario!";
+            return "Erro ao alterar inventario: " + e.getMessage();
         }
     }
 
@@ -106,7 +106,7 @@ public class InventarioDAO {
                 return "Erro ao deletar inventario!";
             }
         } catch (SQLException e) {
-            return "Erro ao deletar inventario!";
+            return "Erro ao deletar inventario: " + e.getMessage();
         }
     }
 
