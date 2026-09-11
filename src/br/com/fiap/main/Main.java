@@ -59,10 +59,13 @@ public class Main {
             cadastrarDadosIniciais(itemDAO, parceriaDAO, codigoDAO);
             executar(usuarioDAO, avatarDAO, itemDAO, inventarioDAO,
                     missaoDAO, missaoUsuarioDAO, logDAO);
-        } finally {
-            ConnectionFactory.closeConnection(con);
-            JOptionPane.showMessageDialog(null, "Obrigado por usar o TechLeet!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                    "Ocorreu um erro na aplicação: " + e.getMessage());
         }
+
+        ConnectionFactory.closeConnection(con);
+        JOptionPane.showMessageDialog(null, "Obrigado por usar o TechLeet!");
     }
 
     private static void cadastrarDadosIniciais(ItemDAO itemDAO,
