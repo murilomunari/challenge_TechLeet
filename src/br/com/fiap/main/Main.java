@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,48 +36,6 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 public class Main {
-
-    private final UsuarioDAO usuarioDAO;
-    private final AvatarDAO avatarDAO;
-    private final ItemDAO itemDAO;
-    private final InventarioDAO inventarioDAO;
-    private final MissaoDAO missaoDAO;
-    private final MissaoUsuarioDAO missaoUsuarioDAO;
-    private final LogDAO logDAO;
-    private final ParceriaDAO parceriaDAO;
-    private final CodigoDAO codigoDAO;
-
-    private final HashSet<String> modelosEquipaveis = new HashSet<>();
-    private final HashMap<Integer, String> tiposMissao = new HashMap<>();
-    private final HashMap<Integer, String> modelosItem = new HashMap<>();
-    private final HashMap<Integer, String> tiposItem = new HashMap<>();
-
-    private boolean continuar = true;
-    private int idUsuario;
-    private int idAvatar;
-    private int idItem;
-    private int idInventario;
-    private int idMissao;
-    private int idMissaoUsuario;
-    private int idLog;
-    private int idParceria;
-    private int idCodigo;
-
-    public Main(Connection con) {
-        usuarioDAO = new UsuarioDAO(con);
-        avatarDAO = new AvatarDAO(con);
-        itemDAO = new ItemDAO(con);
-        inventarioDAO = new InventarioDAO(con);
-        missaoDAO = new MissaoDAO(con);
-        missaoUsuarioDAO = new MissaoUsuarioDAO(con);
-        logDAO = new LogDAO(con);
-        parceriaDAO = new ParceriaDAO(con);
-        codigoDAO = new CodigoDAO(con);
-
-        configurarColecoes();
-        carregarUltimosIds();
-        cadastrarDadosIniciais();
-    }
 
     public static void main(String[] args) {
         Connection con = ConnectionFactory.getConnection();
@@ -87,49 +46,28 @@ public class Main {
         }
 
         try {
-            new Main(con).executar();
+            UsuarioDAO usuarioDAO = new UsuarioDAO(con);
+            AvatarDAO avatarDAO = new AvatarDAO(con);
+            ItemDAO itemDAO = new ItemDAO(con);
+            InventarioDAO inventarioDAO = new InventarioDAO(con);
+            MissaoDAO missaoDAO = new MissaoDAO(con);
+            MissaoUsuarioDAO missaoUsuarioDAO = new MissaoUsuarioDAO(con);
+            LogDAO logDAO = new LogDAO(con);
+            ParceriaDAO parceriaDAO = new ParceriaDAO(con);
+            CodigoDAO codigoDAO = new CodigoDAO(con);
+
+            cadastrarDadosIniciais(itemDAO, parceriaDAO, codigoDAO);
+            executar(usuarioDAO, avatarDAO, itemDAO, inventarioDAO,
+                    missaoDAO, missaoUsuarioDAO, logDAO);
         } finally {
             ConnectionFactory.closeConnection(con);
             JOptionPane.showMessageDialog(null, "Obrigado por usar o TechLeet!");
         }
     }
 
-    private void configurarColecoes() {
-        modelosEquipaveis.add("CABELO");
-        modelosEquipaveis.add("ROUPA DE CIMA INTERNA");
-        modelosEquipaveis.add("ROUPA DE CIMA EXTERNA");
-        modelosEquipaveis.add("ROUPA DE BAIXO");
-        modelosEquipaveis.add("CALCADO");
-        modelosEquipaveis.add("ACESSORIO");
-
-        tiposMissao.put(1, "DIARIA");
-        tiposMissao.put(2, "SEMANAL");
-        tiposMissao.put(3, "ESPECIAL");
-
-        modelosItem.put(1, "CABELO");
-        modelosItem.put(2, "ROUPA DE CIMA INTERNA");
-        modelosItem.put(3, "ROUPA DE CIMA EXTERNA");
-        modelosItem.put(4, "ROUPA DE BAIXO");
-        modelosItem.put(5, "CALCADO");
-        modelosItem.put(6, "ACESSORIO");
-
-        tiposItem.put(1, "NORMAL");
-        tiposItem.put(2, "EXCLUSIVO");
-    }
-
-    private void carregarUltimosIds() {
-        idUsuario = maiorId(usuarioDAO.listaTodos(), Usuario::getId);
-        idAvatar = maiorId(avatarDAO.ListarAvatar(), Avatar::getId);
-        idInventario = maiorId(inventarioDAO.ListarInventario(), Inventario::getId);
-        idItem = maiorId(itemDAO.ListarItem(), Item::getId);
-        idMissao = maiorId(missaoDAO.ListaMissao(), Missao::getId);
-        idMissaoUsuario = maiorId(missaoUsuarioDAO.ListarMissaoUsuario(), MissaoUsuario::getId);
-        idLog = maiorId(logDAO.ListarLog(), Log::getId);
-        idParceria = maiorId(parceriaDAO.ListarParceria(), Parceria::getId);
-        idCodigo = maiorId(codigoDAO.ListarCodigo(), Codigo::getId);
-    }
-
-    private void cadastrarDadosIniciais() {
+    private static void cadastrarDadosIniciais(ItemDAO itemDAO,
+                                                ParceriaDAO parceriaDAO,
+                                                CodigoDAO codigoDAO) {
         ArrayList<Item> itens = itemDAO.ListarItem();
         ArrayList<Parceria> parcerias = parceriaDAO.ListarParceria();
         ArrayList<Codigo> codigos = codigoDAO.ListarCodigo();
@@ -137,6 +75,35 @@ public class Main {
         if (itens == null || parcerias == null || codigos == null) {
             System.out.println("Não foi possível verificar os dados iniciais.");
             return;
+        }
+
+        ArrayList<Item> itensIniciais = new ArrayList<>();
+        itensIniciais.add(new Item(0, "Cabelo Básico", "CABELO", 0, "NORMAL"));
+        itensIniciais.add(new Item(0, "Camiseta Básica", "ROUPA DE CIMA INTERNA", 0, "NORMAL"));
+        itensIniciais.add(new Item(0, "Jaqueta Básica", "ROUPA DE CIMA EXTERNA", 0, "NORMAL"));
+        itensIniciais.add(new Item(0, "Calça Básica", "ROUPA DE BAIXO", 0, "NORMAL"));
+        itensIniciais.add(new Item(0, "Tênis Básico", "CALCADO", 0, "NORMAL"));
+        itensIniciais.add(new Item(0, "Pulseira Básica", "ACESSORIO", 0, "NORMAL"));
+        itensIniciais.add(new Item(0, "Cabelo Neon", "CABELO", 60, "NORMAL"));
+        itensIniciais.add(new Item(0, "Camiseta Tech", "ROUPA DE CIMA INTERNA", 80, "NORMAL"));
+        itensIniciais.add(new Item(0, "Jaqueta Gamer", "ROUPA DE CIMA EXTERNA", 120, "NORMAL"));
+        itensIniciais.add(new Item(0, "Calça Cargo", "ROUPA DE BAIXO", 90, "NORMAL"));
+        itensIniciais.add(new Item(0, "Tênis Neon", "CALCADO", 100, "NORMAL"));
+        itensIniciais.add(new Item(0, "Óculos Digital", "ACESSORIO", 70, "NORMAL"));
+
+        for (Item itemInicial : itensIniciais) {
+            boolean itemJaCadastrado = itens.stream()
+                    .anyMatch(item -> item.getNome().equalsIgnoreCase(itemInicial.getNome()));
+
+            if (!itemJaCadastrado) {
+                itemInicial.setId(maiorId(itens, Item::getId) + 1);
+                String resultado = itemDAO.InserirItem(itemInicial);
+                System.out.println(resultado);
+
+                if (resultado.contains("sucesso")) {
+                    itens.add(itemInicial);
+                }
+            }
         }
 
         Item itemCodigo = null;
@@ -147,7 +114,8 @@ public class Main {
         }
 
         if (itemCodigo == null) {
-            itemCodigo = new Item(++idItem, "Boné TechLeet",
+            int idItem = maiorId(itens, Item::getId) + 1;
+            itemCodigo = new Item(idItem, "Boné TechLeet",
                     "ACESSORIO", 0, "EXCLUSIVO");
             String resultadoItem = itemDAO.InserirItem(itemCodigo);
             System.out.println(resultadoItem);
@@ -155,11 +123,6 @@ public class Main {
             if (!resultadoItem.contains("sucesso")) {
                 return;
             }
-        } else {
-            itemCodigo.setModelo("ACESSORIO");
-            itemCodigo.setValorPontos(0);
-            itemCodigo.setTipo("EXCLUSIVO");
-            System.out.println(itemDAO.AlterarItem(itemCodigo));
         }
 
         Parceria parceriaCodigo = null;
@@ -170,7 +133,8 @@ public class Main {
         }
 
         if (parceriaCodigo == null) {
-            parceriaCodigo = new Parceria(++idParceria, "TechStore",
+            int idParceria = maiorId(parcerias, Parceria::getId) + 1;
+            parceriaCodigo = new Parceria(idParceria, "TechStore",
                     "MARCA", "ATIVA", new BigDecimal("1000.00"),
                     LocalDate.now(), LocalDate.now().plusYears(1));
             String resultadoParceria = parceriaDAO.InserirParceria(parceriaCodigo);
@@ -179,12 +143,6 @@ public class Main {
             if (!resultadoParceria.contains("sucesso")) {
                 return;
             }
-        } else {
-            parceriaCodigo.setTipo("MARCA");
-            parceriaCodigo.setStatus("ATIVA");
-            parceriaCodigo.setCustoMensal(new BigDecimal("1000.00"));
-            parceriaCodigo.setDataFim(LocalDate.now().plusYears(1));
-            System.out.println(parceriaDAO.AlterarParceria(parceriaCodigo));
         }
 
         Codigo codigoInicial = null;
@@ -194,23 +152,12 @@ public class Main {
             }
         }
 
-        if (codigoInicial != null
-                && codigoInicial.getDataValidade() != null
-                && LocalDate.now().isAfter(codigoInicial.getDataValidade())
-                && "DISPONIVEL".equalsIgnoreCase(codigoInicial.getStatus())) {
-            System.out.println(codigoDAO.DeletarCodigo(codigoInicial));
-            codigoInicial = null;
-        }
-
         if (codigoInicial == null) {
-            codigoInicial = new Codigo(++idCodigo, "TECHLEET2026",
+            int idCodigo = maiorId(codigos, Codigo::getId) + 1;
+            codigoInicial = new Codigo(idCodigo, "TECHLEET2026",
                     "DISPONIVEL", LocalDate.now().plusYears(1), null,
                     itemCodigo.getId(), parceriaCodigo.getId());
             System.out.println(codigoDAO.InserirCodigo(codigoInicial));
-        } else {
-            codigoInicial.setIdItem(itemCodigo.getId());
-            codigoInicial.setIdParceria(parceriaCodigo.getId());
-            System.out.println(codigoDAO.AlterarCodigo(codigoInicial));
         }
 
         System.out.println("\n=== DADOS INICIAIS CADASTRADOS ===");
@@ -260,20 +207,28 @@ public class Main {
         return registros == null ? new ArrayList<>() : registros;
     }
 
-    private void executar() {
+    private static void executar(UsuarioDAO usuarioDAO, AvatarDAO avatarDAO,
+                                 ItemDAO itemDAO, InventarioDAO inventarioDAO,
+                                 MissaoDAO missaoDAO, MissaoUsuarioDAO missaoUsuarioDAO,
+                                 LogDAO logDAO) {
         JOptionPane.showMessageDialog(null, "Bem-vindo ao TechLeet - Sistema de Gamificação!");
 
+        boolean continuar = true;
         while (continuar) {
             try {
-                Usuario usuario = acessar();
+                Usuario usuario = acessar(usuarioDAO, avatarDAO, itemDAO,
+                        inventarioDAO, logDAO);
                 if (usuario != null) {
-                    executarMenuPrincipal(usuario);
+                    continuar = !executarMenuPrincipal(usuario, usuarioDAO, avatarDAO,
+                            itemDAO, inventarioDAO, missaoDAO, missaoUsuarioDAO, logDAO);
+                } else {
+                    continuar = false;
                 }
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Erro: Digite um número válido!");
             } catch (DateTimeParseException e) {
                 JOptionPane.showMessageDialog(null,
-                        "Erro: Digite a data no formato AAAA-MM-DD!");
+                        "Erro: Digite a data no formato DD-MM-AAAA!");
             } catch (AvatarException | MissaoUsuarioException | UsuarioException e) {
                 JOptionPane.showMessageDialog(null, "Erro de validação: " + e.getMessage());
             } catch (Exception e) {
@@ -282,40 +237,93 @@ public class Main {
         }
     }
 
-    private Usuario acessar() {
+    private static Usuario acessar(UsuarioDAO usuarioDAO, AvatarDAO avatarDAO,
+                                   ItemDAO itemDAO, InventarioDAO inventarioDAO,
+                                   LogDAO logDAO) {
         Usuario usuario = null;
 
-        while (usuario == null && continuar) {
+        while (usuario == null) {
             String menuAcesso = "=== ACESSO ===\n\n"
                     + "1. Cadastrar usuário\n"
                     + "2. Entrar\n"
                     + "3. Encerrar programa";
-            int opcaoAcesso = lerInteiro(menuAcesso);
+            int opcaoAcesso = Integer.parseInt(JOptionPane.showInputDialog(menuAcesso));
 
             switch (opcaoAcesso) {
                 case 1:
-                    usuario = cadastrarUsuario();
+                    usuario = cadastrarUsuario(usuarioDAO, logDAO);
                     break;
                 case 2:
-                    usuario = entrar();
+                    usuario = entrar(usuarioDAO, logDAO);
                     break;
                 case 3:
-                    continuar = false;
-                    break;
+                    return null;
                 default:
                     JOptionPane.showMessageDialog(null, "Opção inválida!");
+            }
+        }
+
+        ArrayList<Inventario> inventarios = inventarioDAO.ListarInventario();
+        ArrayList<Item> itens = itemDAO.ListarItem();
+
+        if (inventarios != null && itens != null) {
+            int idUsuario = usuario.getId();
+            HashSet<Integer> idsItensPossuidos = inventarios.stream()
+                    .filter(inventario -> inventario.getIdUsuario() == idUsuario)
+                    .map(Inventario::getIdItem)
+                    .collect(Collectors.toCollection(HashSet::new));
+
+            Avatar avatar = buscarAvatar(usuario, avatarDAO);
+            if (avatar != null) {
+                idsItensPossuidos.add(avatar.getIdCabelo());
+                idsItensPossuidos.add(avatar.getIdRoupaCimaInt());
+                idsItensPossuidos.add(avatar.getIdRoupaCimaExt());
+                idsItensPossuidos.add(avatar.getIdRoupaBaixo());
+                idsItensPossuidos.add(avatar.getIdCalcado());
+                idsItensPossuidos.add(avatar.getIdAcessorio());
+            }
+
+            HashSet<String> nomesItensPadrao = new HashSet<>();
+            nomesItensPadrao.add("Cabelo Básico");
+            nomesItensPadrao.add("Camiseta Básica");
+            nomesItensPadrao.add("Jaqueta Básica");
+            nomesItensPadrao.add("Calça Básica");
+            nomesItensPadrao.add("Tênis Básico");
+            nomesItensPadrao.add("Pulseira Básica");
+
+            int itensRecebidos = 0;
+            for (Item item : itens) {
+                if (nomesItensPadrao.contains(item.getNome())
+                        && !idsItensPossuidos.contains(item.getId())) {
+                    int idInventario = maiorId(inventarios, Inventario::getId) + 1;
+                    Inventario novoItemInventario = new Inventario(idInventario,
+                            idUsuario, item.getId(), "RESGATE", LocalDate.now());
+                    String resultado = inventarioDAO.InserirInventario(novoItemInventario);
+
+                    if (resultado.contains("sucesso")) {
+                        inventarios.add(novoItemInventario);
+                        idsItensPossuidos.add(item.getId());
+                        itensRecebidos++;
+                    }
+                }
+            }
+
+            if (itensRecebidos > 0) {
+                JOptionPane.showMessageDialog(null,
+                        "Você recebeu " + itensRecebidos + " itens do kit inicial!");
             }
         }
 
         return usuario;
     }
 
-    private Usuario cadastrarUsuario() {
+    private static Usuario cadastrarUsuario(UsuarioDAO usuarioDAO, LogDAO logDAO) {
         String nome = JOptionPane.showInputDialog("Digite seu nome:");
         String email = JOptionPane.showInputDialog("Digite seu email:");
         String senha = JOptionPane.showInputDialog("Digite sua senha:");
-        LocalDate dataNascimento = LocalDate.parse(JOptionPane.showInputDialog(
-                "Digite sua data de nascimento (AAAA-MM-DD):"));
+        LocalDate dataNascimento = LocalDate.parse(
+                JOptionPane.showInputDialog("Digite sua data de nascimento (DD-MM-AAAA):"),
+                DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
         if (dataNascimento.isAfter(LocalDate.now())) {
             throw new UsuarioException("A data de nascimento não pode estar no futuro.");
@@ -329,7 +337,8 @@ public class Main {
             return null;
         }
 
-        Usuario usuario = new Usuario(++idUsuario, nome, email, senha, dataNascimento, 0);
+        int idUsuario = maiorId(usuarioDAO.listaTodos(), Usuario::getId) + 1;
+        Usuario usuario = new Usuario(idUsuario, nome, email, senha, dataNascimento, 20);
         String resultado = usuarioDAO.InserirUsuario(usuario);
         JOptionPane.showMessageDialog(null, resultado);
 
@@ -337,11 +346,13 @@ public class Main {
             return null;
         }
 
-        registrarLog("CADASTRO", "Usuário cadastrado: " + email, usuario);
+        JOptionPane.showMessageDialog(null,
+                "Sua conta foi criada com 20 pontos iniciais!");
+        registrarLog(logDAO, "CADASTRO", "Usuário cadastrado: " + email, usuario);
         return usuario;
     }
 
-    private Usuario entrar() {
+    private static Usuario entrar(UsuarioDAO usuarioDAO, LogDAO logDAO) {
         String email = JOptionPane.showInputDialog("Digite seu email:");
         String senha = JOptionPane.showInputDialog("Digite sua senha:");
 
@@ -356,15 +367,17 @@ public class Main {
             return null;
         }
 
-        registrarLog("SESSAO", "Login realizado", usuario);
+        registrarLog(logDAO, "SESSAO", "Login realizado", usuario);
         JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");
         return usuario;
     }
 
-    private void executarMenuPrincipal(Usuario usuario) {
-        boolean continuarMenu = true;
-
-        while (continuarMenu) {
+    private static boolean executarMenuPrincipal(Usuario usuario, UsuarioDAO usuarioDAO,
+                                                 AvatarDAO avatarDAO, ItemDAO itemDAO,
+                                                 InventarioDAO inventarioDAO, MissaoDAO missaoDAO,
+                                                 MissaoUsuarioDAO missaoUsuarioDAO,
+                                                 LogDAO logDAO) {
+        while (true) {
             String menuPrincipal = "=== MENU PRINCIPAL ===\n\n"
                     + "Usuário: " + usuario.getEmail() + "\n"
                     + "Pontos: " + usuario.getPontos() + "\n\n"
@@ -377,35 +390,50 @@ public class Main {
                     + "7. Criar Missão\n"
                     + "8. Criar Item\n"
                     + "9. Sair";
-            int opcaoMenu = lerInteiro(menuPrincipal);
+            int opcaoMenu = Integer.parseInt(JOptionPane.showInputDialog(menuPrincipal));
 
             switch (opcaoMenu) {
                 case 1:
-                    criarAvatar(usuario);
+                    criarAvatar(usuario, avatarDAO, logDAO);
                     break;
                 case 2:
-                    equiparItem(usuario);
+                    equiparItem(usuario, avatarDAO, itemDAO, inventarioDAO, logDAO);
                     break;
                 case 3:
-                    fazerMissao(usuario);
+                    fazerMissao(usuario, usuarioDAO, missaoDAO, missaoUsuarioDAO, logDAO);
                     break;
                 case 4:
-                    gastarPontos(usuario);
+                    gastarPontos(usuario, usuarioDAO, itemDAO, inventarioDAO, logDAO);
                     break;
                 case 5:
-                    mostrarInformacoes(usuario);
+                    mostrarInformacoes(usuario, avatarDAO, itemDAO,
+                            inventarioDAO, missaoUsuarioDAO);
                     break;
                 case 6:
-                    continuarMenu = !deletarUsuario(usuario);
+                    if (deletarUsuario(usuario, usuarioDAO)) {
+                        return false;
+                    }
                     break;
                 case 7:
-                    criarMissao(usuario);
+                    criarMissao(usuario, missaoDAO, logDAO);
                     break;
                 case 8:
-                    criarItem(usuario);
+                    criarItem(usuario, itemDAO, logDAO);
                     break;
                 case 9:
-                    continuarMenu = processarSaida(usuario);
+                    int opcaoSaida = Integer.parseInt(JOptionPane.showInputDialog(
+                            "O que você deseja fazer?\n\n"
+                                    + "1. Encerrar programa\n"
+                                    + "2. Entrar com outro usuário"));
+
+                    if (opcaoSaida == 1) {
+                        registrarLog(logDAO, "SESSAO", "Sessão encerrada", usuario);
+                        return true;
+                    } else if (opcaoSaida == 2) {
+                        return false;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Opção inválida!");
+                    }
                     break;
                 default:
                     JOptionPane.showMessageDialog(null, "Opção inválida!");
@@ -413,8 +441,8 @@ public class Main {
         }
     }
 
-    private void criarAvatar(Usuario usuario) {
-        Avatar avatar = buscarAvatar(usuario);
+    private static void criarAvatar(Usuario usuario, AvatarDAO avatarDAO, LogDAO logDAO) {
+        Avatar avatar = buscarAvatar(usuario, avatarDAO);
 
         if (avatar != null) {
             JOptionPane.showMessageDialog(null,
@@ -423,40 +451,56 @@ public class Main {
         }
 
         String nomeAvatar = JOptionPane.showInputDialog("Digite o nome do seu Avatar:");
-        avatar = new Avatar(++idAvatar, nomeAvatar,
+        int idAvatar = maiorId(avatarDAO.ListarAvatar(), Avatar::getId) + 1;
+        avatar = new Avatar(idAvatar, nomeAvatar,
                 0, 0, 0, 0, 0, 0, usuario.getId());
 
         String resultado = avatarDAO.InserirAvatar(avatar);
         JOptionPane.showMessageDialog(null, resultado);
 
         if (resultado.contains("sucesso")) {
-            registrarLog("AVATAR", "Avatar criado: " + nomeAvatar, usuario);
+            registrarLog(logDAO, "AVATAR", "Avatar criado: " + nomeAvatar, usuario);
         }
     }
 
-    private Avatar buscarAvatar(Usuario usuario) {
+    private static Avatar buscarAvatar(Usuario usuario, AvatarDAO avatarDAO) {
         return listaSegura(avatarDAO.ListarAvatar()).stream()
                 .filter(avatar -> avatar.getIdUsuario() == usuario.getId())
                 .findFirst()
                 .orElse(null);
     }
 
-    private void equiparItem(Usuario usuario) {
-        Avatar avatar = buscarAvatar(usuario);
+    private static void equiparItem(Usuario usuario, AvatarDAO avatarDAO,
+                                    ItemDAO itemDAO, InventarioDAO inventarioDAO,
+                                    LogDAO logDAO) {
+        Avatar avatar = buscarAvatar(usuario, avatarDAO);
 
         if (avatar == null) {
             JOptionPane.showMessageDialog(null, "Crie um avatar primeiro! (Opção 1)");
             return;
         }
 
-        HashSet<Integer> idsItensPossuidos = listaSegura(inventarioDAO.ListarInventario()).stream()
+        ArrayList<Inventario> inventariosUsuario =
+                listaSegura(inventarioDAO.ListarInventario()).stream()
                 .filter(inventario -> inventario.getIdUsuario() == usuario.getId())
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        HashSet<Integer> idsItensPossuidos = inventariosUsuario.stream()
                 .map(Inventario::getIdItem)
                 .collect(Collectors.toCollection(HashSet::new));
 
+        HashSet<String> modelosEquipaveis = new HashSet<>();
+        modelosEquipaveis.add("CABELO");
+        modelosEquipaveis.add("ROUPA DE CIMA INTERNA");
+        modelosEquipaveis.add("ROUPA DE CIMA EXTERNA");
+        modelosEquipaveis.add("ROUPA DE BAIXO");
+        modelosEquipaveis.add("CALCADO");
+        modelosEquipaveis.add("ACESSORIO");
+
         ArrayList<Item> itensEquipaveis = listaSegura(itemDAO.ListarItem()).stream()
                 .filter(item -> idsItensPossuidos.contains(item.getId()))
-                .filter(this::modeloEquipavel)
+                .filter(item -> item.getModelo() != null
+                        && modelosEquipaveis.contains(item.getModelo().toUpperCase()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (itensEquipaveis.isEmpty()) {
@@ -471,7 +515,8 @@ public class Main {
             opcoes = opcoes + (indice + 1) + ". "
                     + item.getNome() + " - " + item.getModelo() + "\n";
         }
-        int opcaoItem = lerInteiro("Escolha um item para equipar:\n\n" + opcoes);
+        int opcaoItem = Integer.parseInt(JOptionPane.showInputDialog(
+                "Escolha um item para equipar:\n\n" + opcoes));
 
         if (opcaoItem < 1 || opcaoItem > itensEquipaveis.size()) {
             JOptionPane.showMessageDialog(null, "Opção inválida!");
@@ -479,23 +524,32 @@ public class Main {
         }
 
         Item itemEscolhido = itensEquipaveis.get(opcaoItem - 1);
+        Inventario itemNoInventario = inventariosUsuario.stream()
+                .filter(inventario -> inventario.getIdItem() == itemEscolhido.getId())
+                .findFirst()
+                .orElse(null);
         avatar.equiparItem(itemEscolhido);
         String resultado = avatarDAO.AlterarAvatar(avatar);
 
-        if (resultado.contains("sucesso")) {
-            registrarLog("EQUIPAR", "Item equipado: " + itemEscolhido.getNome(), usuario);
+        if (resultado.contains("sucesso") && itemNoInventario != null) {
+            String resultadoInventario = inventarioDAO.DeletarInventario(itemNoInventario);
+
+            if (!resultadoInventario.contains("sucesso")) {
+                JOptionPane.showMessageDialog(null, resultadoInventario);
+                return;
+            }
+
+            registrarLog(logDAO, "EQUIPAR", "Item equipado: " + itemEscolhido.getNome(), usuario);
             JOptionPane.showMessageDialog(null, "Item equipado com sucesso!");
         } else {
             JOptionPane.showMessageDialog(null, resultado);
         }
     }
 
-    private boolean modeloEquipavel(Item item) {
-        return item.getModelo() != null
-                && modelosEquipaveis.contains(item.getModelo().toUpperCase());
-    }
-
-    private void fazerMissao(Usuario usuario) {
+    private static void fazerMissao(Usuario usuario, UsuarioDAO usuarioDAO,
+                                    MissaoDAO missaoDAO,
+                                    MissaoUsuarioDAO missaoUsuarioDAO,
+                                    LogDAO logDAO) {
         ArrayList<Missao> missoes = listaSegura(missaoDAO.ListaMissao());
 
         if (missoes.isEmpty()) {
@@ -509,7 +563,8 @@ public class Main {
             opcoes = opcoes + (indice + 1) + ". " + missao.getTitulo()
                     + " (" + missao.getPontos() + " pontos)\n";
         }
-        int opcaoMissao = lerInteiro("Escolha uma missão:\n\n" + opcoes);
+        int opcaoMissao = Integer.parseInt(JOptionPane.showInputDialog(
+                "Escolha uma missão:\n\n" + opcoes));
 
         if (opcaoMissao < 1 || opcaoMissao > missoes.size()) {
             JOptionPane.showMessageDialog(null, "Opção inválida!");
@@ -529,7 +584,9 @@ public class Main {
 
         LocalDate dataInicio = LocalDate.now();
         LocalDate dataFim = calcularDataFim(dataInicio, missao.getTipo());
-        MissaoUsuario registro = new MissaoUsuario(++idMissaoUsuario,
+        int idMissaoUsuario = maiorId(missaoUsuarioDAO.ListarMissaoUsuario(),
+                MissaoUsuario::getId) + 1;
+        MissaoUsuario registro = new MissaoUsuario(idMissaoUsuario,
                 usuario.getId(), missao.getId(), "DISPONIVEL",
                 null, dataInicio, dataFim);
         registro.concluir();
@@ -542,7 +599,7 @@ public class Main {
 
         usuario.adicionarPontos(missao.getPontos());
         usuarioDAO.AlterarUsuario(usuario);
-        registrarLog("MISSAO",
+        registrarLog(logDAO, "MISSAO",
                 "Missão concluída: " + missao.getTitulo()
                         + " (+" + missao.getPontos() + " pts)", usuario);
 
@@ -552,7 +609,7 @@ public class Main {
                         + usuario.getPontos() + " pontos");
     }
 
-    private LocalDate calcularDataFim(LocalDate dataInicio, String tipoMissao) {
+    private static LocalDate calcularDataFim(LocalDate dataInicio, String tipoMissao) {
         String tipo = tipoMissao == null ? "" : tipoMissao.toUpperCase();
 
         switch (tipo) {
@@ -565,15 +622,11 @@ public class Main {
         }
     }
 
-    private void gastarPontos(Usuario usuario) {
-        HashSet<Integer> idsItensPossuidos = listaSegura(inventarioDAO.ListarInventario()).stream()
-                .filter(inventario -> inventario.getIdUsuario() == usuario.getId())
-                .map(Inventario::getIdItem)
-                .collect(Collectors.toCollection(HashSet::new));
-
+    private static void gastarPontos(Usuario usuario, UsuarioDAO usuarioDAO,
+                                     ItemDAO itemDAO, InventarioDAO inventarioDAO,
+                                     LogDAO logDAO) {
         ArrayList<Item> itensDisponiveis = listaSegura(itemDAO.ListarItem()).stream()
                 .filter(item -> item.getValorPontos() > 0)
-                .filter(item -> !idsItensPossuidos.contains(item.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (itensDisponiveis.isEmpty()) {
@@ -582,19 +635,23 @@ public class Main {
         }
 
         String opcoes = "";
-        for (int indice = 0; indice < itensDisponiveis.size(); indice++) {
-            Item item = itensDisponiveis.get(indice);
-            opcoes = opcoes + (indice + 1) + ". " + item.getNome()
+        for (Item item : itensDisponiveis) {
+            opcoes = opcoes + "ID " + item.getId() + " - " + item.getNome()
                     + " (" + item.getValorPontos() + " pontos)\n";
         }
-        int opcaoCompra = lerInteiro("Escolha um item para comprar:\n\n" + opcoes);
+        int idItemEscolhido = Integer.parseInt(JOptionPane.showInputDialog(
+                "Seus pontos: " + usuario.getPontos() + "\n\n"
+                        + "Digite o ID do item que deseja resgatar:\n\n" + opcoes));
 
-        if (opcaoCompra < 1 || opcaoCompra > itensDisponiveis.size()) {
-            JOptionPane.showMessageDialog(null, "Opção inválida!");
+        Item itemComprado = itensDisponiveis.stream()
+                .filter(item -> item.getId() == idItemEscolhido)
+                .findFirst()
+                .orElse(null);
+
+        if (itemComprado == null) {
+            JOptionPane.showMessageDialog(null, "ID de item inválido!");
             return;
         }
-
-        Item itemComprado = itensDisponiveis.get(opcaoCompra - 1);
         if (usuario.getPontos() < itemComprado.getValorPontos()) {
             JOptionPane.showMessageDialog(null, "Você não tem pontos suficientes!");
             return;
@@ -603,11 +660,12 @@ public class Main {
         usuario.gastarPontos(itemComprado.getValorPontos());
         usuarioDAO.AlterarUsuario(usuario);
 
-        Inventario inventario = new Inventario(++idInventario,
+        int idInventario = maiorId(inventarioDAO.ListarInventario(), Inventario::getId) + 1;
+        Inventario inventario = new Inventario(idInventario,
                 usuario.getId(), itemComprado.getId(), "COMPRA", LocalDate.now());
         inventarioDAO.InserirInventario(inventario);
 
-        registrarLog("COMPRA",
+        registrarLog(logDAO, "COMPRA",
                 "Item comprado: " + itemComprado.getNome()
                         + " (-" + itemComprado.getValorPontos() + " pts)", usuario);
 
@@ -616,8 +674,10 @@ public class Main {
                         + usuario.getPontos() + " pontos");
     }
 
-    private void mostrarInformacoes(Usuario usuario) {
-        Avatar avatar = buscarAvatar(usuario);
+    private static void mostrarInformacoes(Usuario usuario, AvatarDAO avatarDAO,
+                                           ItemDAO itemDAO, InventarioDAO inventarioDAO,
+                                           MissaoUsuarioDAO missaoUsuarioDAO) {
+        Avatar avatar = buscarAvatar(usuario, avatarDAO);
         ArrayList<Item> itens = listaSegura(itemDAO.ListarItem());
         ArrayList<Inventario> inventarios = listaSegura(inventarioDAO.ListarInventario());
         ArrayList<MissaoUsuario> missoesUsuario =
@@ -658,7 +718,9 @@ public class Main {
                 + "ID: " + usuario.getId() + "\n"
                 + "NOME: " + usuario.getNome() + "\n"
                 + "EMAIL: " + usuario.getEmail() + "\n"
-                + "DATA DE NASCIMENTO: " + usuario.getDataNascimento() + "\n"
+                + "DATA DE NASCIMENTO: "
+                + usuario.getDataNascimento().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                + "\n"
                 + "PONTOS: " + usuario.getPontos() + "\n\n"
                 + "AVATAR: " + nomeAvatar + "\n"
                 + "\nINVENTÁRIO:\n" + linhasInventario
@@ -667,11 +729,11 @@ public class Main {
         JOptionPane.showMessageDialog(null, info);
     }
 
-    private boolean deletarUsuario(Usuario usuario) {
-        int opcaoDeletar = lerInteiro(
+    private static boolean deletarUsuario(Usuario usuario, UsuarioDAO usuarioDAO) {
+        int opcaoDeletar = Integer.parseInt(JOptionPane.showInputDialog(
                 "Tem certeza que deseja deletar seu usuário?\n\n"
                         + "1. Sim\n"
-                        + "2. Não");
+                        + "2. Não"));
 
         switch (opcaoDeletar) {
             case 1:
@@ -686,16 +748,23 @@ public class Main {
         }
     }
 
-    private void criarMissao(Usuario usuario) {
+    private static void criarMissao(Usuario usuario, MissaoDAO missaoDAO, LogDAO logDAO) {
+        HashMap<Integer, String> tiposMissao = new HashMap<>();
+        tiposMissao.put(1, "DIARIA");
+        tiposMissao.put(2, "SEMANAL");
+        tiposMissao.put(3, "ESPECIAL");
+
         String titulo = JOptionPane.showInputDialog("Digite o título da missão:");
         String descricao = JOptionPane.showInputDialog("Digite a descrição da missão:");
-        int pontosMissao = lerInteiro("Digite a quantidade de pontos da missão:");
+        int pontosMissao = Integer.parseInt(JOptionPane.showInputDialog(
+                "Digite a quantidade de pontos da missão:"));
 
         String menuTipoMissao = "Escolha o tipo da missão:\n\n"
                 + "1. Diária\n"
                 + "2. Semanal\n"
                 + "3. Especial";
-        String tipoMissao = tiposMissao.get(lerInteiro(menuTipoMissao));
+        String tipoMissao = tiposMissao.get(Integer.parseInt(
+                JOptionPane.showInputDialog(menuTipoMissao)));
 
         if (titulo == null || titulo.trim().isEmpty()
                 || descricao == null || descricao.trim().isEmpty()) {
@@ -707,18 +776,31 @@ public class Main {
         } else if (tipoMissao == null) {
             JOptionPane.showMessageDialog(null, "Tipo de missão inválido!");
         } else {
-            Missao novaMissao = new Missao(++idMissao, titulo, descricao,
+            int idMissao = maiorId(missaoDAO.ListaMissao(), Missao::getId) + 1;
+            Missao novaMissao = new Missao(idMissao, titulo, descricao,
                     pontosMissao, tipoMissao);
             String resultado = missaoDAO.InserirMissao(novaMissao);
             JOptionPane.showMessageDialog(null, resultado);
 
             if (resultado.contains("sucesso")) {
-                registrarLog("CRIAR MISSAO", "Missão criada: " + titulo, usuario);
+                registrarLog(logDAO, "CRIAR MISSAO", "Missão criada: " + titulo, usuario);
             }
         }
     }
 
-    private void criarItem(Usuario usuario) {
+    private static void criarItem(Usuario usuario, ItemDAO itemDAO, LogDAO logDAO) {
+        HashMap<Integer, String> modelosItem = new HashMap<>();
+        modelosItem.put(1, "CABELO");
+        modelosItem.put(2, "ROUPA DE CIMA INTERNA");
+        modelosItem.put(3, "ROUPA DE CIMA EXTERNA");
+        modelosItem.put(4, "ROUPA DE BAIXO");
+        modelosItem.put(5, "CALCADO");
+        modelosItem.put(6, "ACESSORIO");
+
+        HashMap<Integer, String> tiposItem = new HashMap<>();
+        tiposItem.put(1, "NORMAL");
+        tiposItem.put(2, "EXCLUSIVO");
+
         String nomeItem = JOptionPane.showInputDialog("Digite o nome do item:");
 
         String menuModelo = "Escolha o modelo do item:\n\n"
@@ -728,14 +810,17 @@ public class Main {
                 + "4. Roupa de baixo\n"
                 + "5. Calçado\n"
                 + "6. Acessório";
-        String modeloItem = modelosItem.get(lerInteiro(menuModelo));
+        String modeloItem = modelosItem.get(Integer.parseInt(
+                JOptionPane.showInputDialog(menuModelo)));
 
-        int valorPontos = lerInteiro("Digite o valor do item em pontos:");
+        int valorPontos = Integer.parseInt(JOptionPane.showInputDialog(
+                "Digite o valor do item em pontos:"));
 
         String menuTipoItem = "Escolha o tipo do item:\n\n"
                 + "1. Normal\n"
                 + "2. Exclusivo";
-        String tipoItem = tiposItem.get(lerInteiro(menuTipoItem));
+        String tipoItem = tiposItem.get(Integer.parseInt(
+                JOptionPane.showInputDialog(menuTipoItem)));
 
         if (nomeItem == null || nomeItem.trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "O nome do item deve ser informado!");
@@ -747,43 +832,24 @@ public class Main {
         } else if (tipoItem == null) {
             JOptionPane.showMessageDialog(null, "Tipo de item inválido!");
         } else {
-            Item novoItem = new Item(++idItem, nomeItem, modeloItem,
+            int idItem = maiorId(itemDAO.ListarItem(), Item::getId) + 1;
+            Item novoItem = new Item(idItem, nomeItem, modeloItem,
                     valorPontos, tipoItem);
             String resultado = itemDAO.InserirItem(novoItem);
             JOptionPane.showMessageDialog(null, resultado);
 
             if (resultado.contains("sucesso")) {
-                registrarLog("CRIAR ITEM", "Item criado: " + nomeItem, usuario);
+                registrarLog(logDAO, "CRIAR ITEM", "Item criado: " + nomeItem, usuario);
             }
         }
     }
 
-    private boolean processarSaida(Usuario usuario) {
-        int opcaoSaida = lerInteiro(
-                "O que você deseja fazer?\n\n"
-                        + "1. Encerrar programa\n"
-                        + "2. Entrar com outro usuário");
-
-        switch (opcaoSaida) {
-            case 1:
-                registrarLog("SESSAO", "Sessão encerrada", usuario);
-                continuar = false;
-                return false;
-            case 2:
-                return false;
-            default:
-                JOptionPane.showMessageDialog(null, "Opção inválida!");
-                return true;
-        }
-    }
-
-    private void registrarLog(String acao, String descricao, Usuario usuario) {
-        Log log = new Log(++idLog, acao, descricao,
+    private static void registrarLog(LogDAO logDAO, String acao,
+                                     String descricao, Usuario usuario) {
+        int idLog = maiorId(logDAO.ListarLog(), Log::getId) + 1;
+        Log log = new Log(idLog, acao, descricao,
                 LocalDate.now(), usuario.getId(), "SUCESSO");
         logDAO.InserirLog(log);
     }
 
-    private int lerInteiro(String mensagem) {
-        return Integer.parseInt(JOptionPane.showInputDialog(mensagem));
-    }
 }
